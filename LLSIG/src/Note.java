@@ -28,4 +28,8 @@ public class Note {
 	public void setEndFrame(int end) {
 		this.end = end;
 	}
+	@Override
+	public String toString() {
+		return "Note [type=" + type + ", start=" + start + ", end=" + end + "]";
+	}
 }

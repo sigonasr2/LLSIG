@@ -21,22 +21,24 @@ public class Canvas extends JPanel{
 		final int NOTE_SIZE = 16;
 		
 		super.paintComponent(g);
-		g.setColor(Color.BLACK);
-		g.fillRect(0,0,this.getWidth(),this.getHeight());
-		g.setColor(Color.WHITE);
-		g.drawString(Integer.toString(LLSIG.game!=null?LLSIG.game.frameCount:0),0,16);
-		
-		g.setColor(Color.GRAY);
-		g.fillRect(MIDDLE_X-JUDGEMENT_LINE_WIDTH/2,MIDDLE_Y-JUDGEMENT_LINE_HEIGHT/2,JUDGEMENT_LINE_WIDTH,JUDGEMENT_LINE_HEIGHT);
-		
-		g.setColor(NOTE_COLOR);
-		int noteCounter = 0;
-		Lane lane1 = LLSIG.game.lanes.get(0);
-		while (lane1.noteExists(noteCounter)) {
-			Note n = lane1.getNote(noteCounter);
-			int NOTE_Y_OFFSET = (int)((((double)LLSIG.game.musicPlayer.getPlayPosition()-n.getStartFrame())/1000)*60*LLSIG.game.noteSpeed);
-			g.fillOval(MIDDLE_X-NOTE_SIZE/2,MIDDLE_Y-NOTE_SIZE/2+NOTE_Y_OFFSET,NOTE_SIZE,NOTE_SIZE);
-			noteCounter++;
+		if (LLSIG.game!=null) {
+			g.setColor(Color.BLACK);
+			g.fillRect(0,0,this.getWidth(),this.getHeight());
+			g.setColor(Color.WHITE);
+			g.drawString(Integer.toString(LLSIG.game.frameCount),0,16);
+			
+			g.setColor(Color.GRAY);
+			g.fillRect(MIDDLE_X-JUDGEMENT_LINE_WIDTH/2,MIDDLE_Y-JUDGEMENT_LINE_HEIGHT/2,JUDGEMENT_LINE_WIDTH,JUDGEMENT_LINE_HEIGHT);
+			
+			g.setColor(NOTE_COLOR);
+			int noteCounter = 0;
+			Lane lane1 = LLSIG.game.lanes.get(0);
+			while (lane1.noteExists(noteCounter)) {
+				Note n = lane1.getNote(noteCounter);
+				int NOTE_Y_OFFSET = (int)((((double)LLSIG.game.musicPlayer.getPlayPosition()-n.getStartFrame())/1000)*60*LLSIG.game.noteSpeed);
+				g.fillOval(MIDDLE_X-NOTE_SIZE/2,MIDDLE_Y-NOTE_SIZE/2+NOTE_Y_OFFSET,NOTE_SIZE,NOTE_SIZE);
+				noteCounter++;
+			}
 		}
 	}
 }

@@ -9,10 +9,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
 import javazoom.jl.decoder.JavaLayerException;
+import sig.utils.FileUtils;
 
 public class LLSIG implements KeyListener{
 	Player musicPlayer;
@@ -24,17 +26,16 @@ public class LLSIG implements KeyListener{
 	int noteSpeed = 4;
 	List<Lane> lanes = new ArrayList<Lane>();
 	
+	public boolean EDITMODE = true;
+	
 	LLSIG(JFrame f) {
 		this.window = f;
 		this.musicPlayer = new Player("music/MiChi - ONE-315959669.mp3");
 		musicPlayer.play();
 		
-		lanes.add(new Lane(Arrays.asList(new Note[] {
-				new Note(NoteType.NORMAL,1000),
-				new Note(NoteType.NORMAL,2000),
-				new Note(NoteType.NORMAL,3000),
-				new Note(NoteType.NORMAL,4000),
-		})));
+		lanes.add(new Lane(new ArrayList<Note>()));
+		
+		//LoadSongData("MiChi - ONE-315959669",lanes);
 		
 		Canvas canvas = new Canvas(f.getSize());
 		window.add(canvas);
@@ -46,9 +47,52 @@ public class LLSIG implements KeyListener{
 				window.repaint();
 			}
 		};
+		
+		//SaveSongData("MiChi - ONE-315959669",lanes);
 		stpe.scheduleAtFixedRate(gameLoop, 0, 16666666l, TimeUnit.NANOSECONDS);
 	}
 	
+	private void LoadSongData(String song,List<Lane> lanes) {
+		try {
+			String[] data = FileUtils.readFromFile("music/"+song+".sig");
+			for (String line : data) {
+				String[] split = line.split(Pattern.quote(","));
+				int lane = Integer.parseInt(split[0]);
+				NoteType noteType = NoteType.valueOf(split[1]);
+				int offset = Integer.parseInt(split[2]);
+				int offset2 = -1;
+				while (lanes.size()<lane) {
+					lanes.add(new Lane(new ArrayList<Note>()));
+				}
+				if (noteType==NoteType.HOLD) {
+					offset2 = Integer.parseInt(split[2]);
+					lanes.get(lane-1).addNote(new Note(noteType,offset,offset2));
+				} else {
+					lanes.get(lane-1).addNote(new Note(noteType,offset));
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void SaveSongData(String song,List<Lane> lanes) {
+		List<String> data = new ArrayList<String>();
+		for (int lane=0;lane<lanes.size();lane++) {
+			Lane l = lanes.get(lane);
+			int noteCount=0;
+			while (l.noteExists(noteCount)) {
+				Note n = l.getNote(noteCount++);
+				data.add(new StringBuilder().append(lane+1).append(",")
+						.append(n.getNoteType().name()).append(",")
+						.append(n.getStartFrame()).append(",")
+						.append(n.getEndFrame())
+						.toString());
+			}
+		}
+		FileUtils.writeToFile(data.toArray(new String[data.size()]),"music/"+song+".sig");
+	}
+
 	public static void main(String[] args) {
 		JFrame f = new JFrame();
 		f.setSize(640, 640);
@@ -63,7 +107,8 @@ public class LLSIG implements KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
+		LLSIG.game.lanes.get(0).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
+		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
 	}
 
 	@Override
