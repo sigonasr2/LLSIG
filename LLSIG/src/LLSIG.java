@@ -1,3 +1,4 @@
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -26,6 +27,8 @@ public class LLSIG implements KeyListener{
 	int noteSpeed = 4;
 	List<Lane> lanes = new ArrayList<Lane>();
 	
+	final static Dimension WINDOW_SIZE = new Dimension(1024,800);
+	
 	public boolean EDITMODE = true;
 	
 	LLSIG(JFrame f) {
@@ -33,7 +36,9 @@ public class LLSIG implements KeyListener{
 		this.musicPlayer = new Player("music/MiChi - ONE-315959669.mp3");
 		musicPlayer.play();
 		
-		lanes.add(new Lane(new ArrayList<Note>()));
+		for (int i=0;i<9;i++) {
+			lanes.add(new Lane(new ArrayList<Note>()));
+		}
 		
 		//LoadSongData("MiChi - ONE-315959669",lanes);
 		
@@ -95,7 +100,7 @@ public class LLSIG implements KeyListener{
 
 	public static void main(String[] args) {
 		JFrame f = new JFrame();
-		f.setSize(640, 640);
+		f.setSize(WINDOW_SIZE);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		game = new LLSIG(f);
 	}
@@ -107,7 +112,22 @@ public class LLSIG implements KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		LLSIG.game.lanes.get(0).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
+		int lane = -1;
+		switch (e.getKeyCode()) {
+			case KeyEvent.VK_A:{lane=0;}break;
+			case KeyEvent.VK_S:{lane=1;}break;
+			case KeyEvent.VK_D:{lane=2;}break;
+			case KeyEvent.VK_F:{lane=3;}break;
+			case KeyEvent.VK_SPACE:{lane=4;}break;
+			case KeyEvent.VK_J:{lane=5;}break;
+			case KeyEvent.VK_K:{lane=6;}break;
+			case KeyEvent.VK_L:{lane=7;}break;
+			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
+			case KeyEvent.VK_P:{if (musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
+		}
+		if (lane!=-1) {
+			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
+		}
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
 	}
 

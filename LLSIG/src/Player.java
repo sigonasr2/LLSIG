@@ -25,6 +25,9 @@ public class Player {
 	public void pause() {
 		jlpp.pause();
 	}
+	public boolean isPaused() {
+		return jlpp.isPaused();
+	}
 	public void resume() {
 		new Thread() {
 			public void run() {
