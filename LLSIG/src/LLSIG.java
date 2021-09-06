@@ -27,20 +27,22 @@ public class LLSIG implements KeyListener{
 	int noteSpeed = 4;
 	List<Lane> lanes = new ArrayList<Lane>();
 	
+	String song = "MiChi - ONE-315959669";
+	
 	final static Dimension WINDOW_SIZE = new Dimension(1024,800);
 	
 	public boolean EDITMODE = true;
 	
 	LLSIG(JFrame f) {
 		this.window = f;
-		this.musicPlayer = new Player("music/MiChi - ONE-315959669.mp3");
+		this.musicPlayer = new Player("music/"+song+".mp3");
 		musicPlayer.play();
 		
 		for (int i=0;i<9;i++) {
 			lanes.add(new Lane(new ArrayList<Note>()));
 		}
 		
-		//LoadSongData("MiChi - ONE-315959669",lanes);
+		LoadSongData("MiChi - ONE-315959669",lanes);
 		
 		Canvas canvas = new Canvas(f.getSize());
 		window.add(canvas);
@@ -124,6 +126,7 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_L:{lane=7;}break;
 			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
 			case KeyEvent.VK_P:{if (musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
+			case KeyEvent.VK_Q:{musicPlayer.pause();SaveSongData("music/"+song+".sig",lanes);}break;
 		}
 		if (lane!=-1) {
 			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
