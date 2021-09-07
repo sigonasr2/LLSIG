@@ -1,0 +1,46 @@
+A song has notes on specific beats, and the editor should account for that.
+
+Chart format:
+First line contains a BPM setter.
+
+BPM setters have a millisecond value followed by a decimal number (Comma-separated).
+
+The millisecond value indicates where in the song the BPM should be applied to. From that point forward,
+every note will reference to this new offset until either the song finishes or a new BPM setter is applied.
+
+Example:
+170,140
+
+A BPM of 140 will be set starting at 170ms into the playing of the song. At 140 BPM, every second references
+~2.333333 notes, or ~428.57ms.
+
+A note is defined as:
+	The lane it's located on (0-8)
+	The type of note (NORMAL or HOLD)
+	The start point of note in relation to the current BPM setter.
+	The end point of the note in relation to the current BPM setter (-1 for a NORMAL note).
+	
+The starting point of a note in relation to the current BPM setter is defined as follows:
+
+Assume that an integer indicates how many beats within that BPM section we are in.
+So Beat 0 is moment 170, Beat 1 is moment 170+428.57, etc. etc.
+
+In this manner, we can easily adjust all the beats based on offset should we need to fix the BPM setter later.
+Everything just shifts with it but stays on beat.
+
+The only tricky part is defining non-aligned beats.
+
+For eighth notes, we will use 0.5. So a note on Beat 3.5 is an eighth note right after Beat 3.
+Sixteenth notes use 0.25.
+
+For triplets, use 0.33333. There will be some precision loss, but we will use 0.33333,0.66667,and 1.0 respectively.
+For sixteenth triplets, use 0.01667,0.33333,0.5,0.66667,0.83333,1.0
+
+If a note uses something that is not one of these values, it is likely unsnapped.
+
+Every note will be given a color (DDR style)
+	- Quarter notes are red.
+	- Eighth notes are blue.
+	- Sixteenth notes are yellow.
+	- 1/6th notes are purple.
+	- 1/12th notes are green.
