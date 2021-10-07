@@ -30,6 +30,9 @@ public class LLSIG implements KeyListener{
 	
 	public boolean EDITMODE = true;
 	public boolean PLAYING = false; //Whether or not a song is loaded and playing.
+
+	public static boolean[] lanePress = new boolean[9]; //A lane is being requested to being pressed.
+	public static boolean[] keyState = new boolean[9]; //Whether or not the key is pressed down.
 	
 	LLSIG(JFrame f) {
 		this.window = f;
@@ -52,6 +55,12 @@ public class LLSIG implements KeyListener{
 		gameLoop = new Thread() {
 			public void run() {
 				frameCount++;
+				for (int i=0;i<9;i++) {
+					if (lanePress[i]) {
+						lanePress[i]=false;
+						//TODO Hit detection goes here.
+					}
+				}
 				window.repaint();
 			}
 		};
@@ -132,12 +141,29 @@ public class LLSIG implements KeyListener{
 		if (LLSIG.game.PLAYING&&lane!=-1) {
 			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
 		}
+		if (lane!=-1) {
+			lanePress[lane]=true;
+			keyState[lane]=true;
+		}
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
+		int lane = -1;
+		switch (e.getKeyCode()) {
+			case KeyEvent.VK_A:{lane=0;}break;
+			case KeyEvent.VK_S:{lane=1;}break;
+			case KeyEvent.VK_D:{lane=2;}break;
+			case KeyEvent.VK_F:{lane=3;}break;
+			case KeyEvent.VK_SPACE:{lane=4;}break;
+			case KeyEvent.VK_J:{lane=5;}break;
+			case KeyEvent.VK_K:{lane=6;}break;
+			case KeyEvent.VK_L:{lane=7;}break;
+			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
+		}
+		if (lane!=-1) {
+			keyState[lane]=false;
+		}
 	}
 }

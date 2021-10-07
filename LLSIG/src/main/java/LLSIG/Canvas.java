@@ -33,7 +33,11 @@ public class Canvas extends JPanel{
 			for (int i=0;i<9;i++) {
 				int LANE_X_OFFSET = (i-5)*LANE_SPACING_X+LANE_SPACING_X/2+JUDGEMENT_LINE_WIDTH/2;
 				
-				g.setColor(Color.GRAY);
+				if (LLSIG.game.keyState[i]) {
+					g.setColor(Color.MAGENTA);
+				} else {
+					g.setColor(Color.GRAY);
+				}
 				//g.fillRect(MIDDLE_X-JUDGEMENT_LINE_WIDTH/2+LANE_X_OFFSET,MIDDLE_Y-JUDGEMENT_LINE_HEIGHT/2,JUDGEMENT_LINE_WIDTH,JUDGEMENT_LINE_HEIGHT);
 				g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*NOTE_DISTANCE-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*NOTE_DISTANCE-NOTE_SIZE/2),NOTE_SIZE,NOTE_SIZE);
 				g.setColor(NOTE_COLOR);
