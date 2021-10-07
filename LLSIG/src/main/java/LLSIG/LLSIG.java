@@ -21,12 +21,12 @@ public class LLSIG implements KeyListener{
 	ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(1);
 	int frameCount;
 	public static LLSIG game;
-	int NOTE_SPEED = 1000; //The note speed determines how early you see the note. So lowering this number increases the speed.
+	int NOTE_SPEED = 850; //The note speed determines how early you see the note. So lowering this number increases the speed.
 	List<Lane> lanes = new ArrayList<Lane>();
 	
 	String song = "MiChi - ONE-315959669";
 	
-	final static Dimension WINDOW_SIZE = new Dimension(1024,800);
+	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
 	public boolean EDITMODE = true;
 	public boolean PLAYING = false; //Whether or not a song is loaded and playing.
@@ -136,7 +136,7 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_L:{lane=7;}break;
 			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
 			case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
-			case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData("music/"+song+".sig",lanes);}}break;
+			case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
 		}
 		if (LLSIG.game.PLAYING&&lane!=-1) {
 			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
