@@ -16,12 +16,12 @@ public class Canvas extends JPanel{
 	public void paintComponent(Graphics g) {
 		
 		final int MIDDLE_X = this.getWidth()/2;
-		final int MIDDLE_Y = this.getHeight()/8;
-		final int NOTE_DISTANCE = 128;
+		final int MIDDLE_Y = this.getHeight()-(this.getWidth()/2);
 		final int JUDGEMENT_LINE_WIDTH = 64;
 		final int JUDGEMENT_LINE_HEIGHT = 4;
-		final int NOTE_SIZE = 16;
+		final int NOTE_SIZE = 96;
 		final int LANE_SPACING_X = 100;
+		final int NOTE_DISTANCE = (int)(LLSIG.WINDOW_SIZE.width/2)-NOTE_SIZE;
 		
 		super.paintComponent(g);
 		if (LLSIG.game!=null) {
@@ -35,7 +35,7 @@ public class Canvas extends JPanel{
 				
 				g.setColor(Color.GRAY);
 				//g.fillRect(MIDDLE_X-JUDGEMENT_LINE_WIDTH/2+LANE_X_OFFSET,MIDDLE_Y-JUDGEMENT_LINE_HEIGHT/2,JUDGEMENT_LINE_WIDTH,JUDGEMENT_LINE_HEIGHT);
-				g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))-16),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))-16),32,32);
+				g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*NOTE_DISTANCE-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*NOTE_DISTANCE-NOTE_SIZE/2),NOTE_SIZE,NOTE_SIZE);
 				g.setColor(NOTE_COLOR);
 				
 				Lane lane = LLSIG.game.lanes.get(i);

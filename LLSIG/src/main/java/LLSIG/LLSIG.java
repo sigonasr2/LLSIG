@@ -3,11 +3,8 @@ import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +12,6 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
-import javazoom.jl.decoder.JavaLayerException;
 import main.java.sig.utils.FileUtils;
 
 public class LLSIG implements KeyListener{
@@ -33,18 +29,22 @@ public class LLSIG implements KeyListener{
 	final static Dimension WINDOW_SIZE = new Dimension(1024,800);
 	
 	public boolean EDITMODE = true;
+	public boolean PLAYING = false; //Whether or not a song is loaded and playing.
 	
 	LLSIG(JFrame f) {
 		this.window = f;
-		this.musicPlayer = new Player("music/"+song+".mp3");
-		musicPlayer.play();
-		
+
 		for (int i=0;i<9;i++) {
 			lanes.add(new Lane(new ArrayList<Note>()));
 		}
-		
-		LoadSongData("MiChi - ONE-315959669",lanes);
-		
+
+		PLAYING = new File("music/"+song+".mp3").exists();
+		if (PLAYING)  {
+			this.musicPlayer = new Player("music/"+song+".mp3");
+			musicPlayer.play();
+			
+			LoadSongData("MiChi - ONE-315959669",lanes);
+		}
 		Canvas canvas = new Canvas(f.getSize());
 		window.add(canvas);
 		window.setVisible(true);
@@ -126,10 +126,10 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_K:{lane=6;}break;
 			case KeyEvent.VK_L:{lane=7;}break;
 			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
-			case KeyEvent.VK_P:{if (musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
-			case KeyEvent.VK_Q:{musicPlayer.pause();SaveSongData("music/"+song+".sig",lanes);}break;
+			case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
+			case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData("music/"+song+".sig",lanes);}}break;
 		}
-		if (lane!=-1) {
+		if (LLSIG.game.PLAYING&&lane!=-1) {
 			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
 		}
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
