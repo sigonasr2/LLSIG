@@ -1,0 +1,2 @@
+mvn compile assembly:single
+java -jar target/LLSIG-1.0-SNAPSHOT-jar-with-dependencies.jar
