@@ -21,7 +21,7 @@ public class LLSIG implements KeyListener{
 	ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(1);
 	int frameCount;
 	public static LLSIG game;
-	int noteSpeed = 4;
+	int NOTE_SPEED = 1000; //The note speed determines how early you see the note. So lowering this number increases the speed.
 	List<Lane> lanes = new ArrayList<Lane>();
 	
 	String song = "MiChi - ONE-315959669";

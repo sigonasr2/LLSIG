@@ -33,7 +33,7 @@ public class Canvas extends JPanel{
 			for (int i=0;i<9;i++) {
 				int LANE_X_OFFSET = (i-5)*LANE_SPACING_X+LANE_SPACING_X/2+JUDGEMENT_LINE_WIDTH/2;
 				
-				if (LLSIG.game.keyState[i]) {
+				if (LLSIG.keyState[i]) {
 					g.setColor(Color.MAGENTA);
 				} else {
 					g.setColor(Color.GRAY);
@@ -46,8 +46,9 @@ public class Canvas extends JPanel{
 				int noteCounter = 0;
 				while (lane.noteExists(noteCounter)) {
 					Note n = lane.getNote(noteCounter);
-					int NOTE_Y_OFFSET = (int)((((double)LLSIG.game.musicPlayer.getPlayPosition()-n.getStartFrame())/1000)*60*LLSIG.game.noteSpeed);
-					g.fillOval(MIDDLE_X-NOTE_SIZE/2+LANE_X_OFFSET,MIDDLE_Y-NOTE_SIZE/2+NOTE_Y_OFFSET,NOTE_SIZE,NOTE_SIZE);
+					if (LLSIG.game.musicPlayer.getPlayPosition()-n.getStartFrame()<LLSIG.game.NOTE_SPEED) {
+						g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*((1-(((double)LLSIG.game.musicPlayer.getPlayPosition()-n.getStartFrame())/LLSIG.game.NOTE_SPEED))*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*((1-(((double)LLSIG.game.musicPlayer.getPlayPosition()-n.getStartFrame())/LLSIG.game.NOTE_SPEED))*NOTE_DISTANCE)-NOTE_SIZE/2),NOTE_SIZE,NOTE_SIZE);
+					}
 					noteCounter++;
 				}
 			}
