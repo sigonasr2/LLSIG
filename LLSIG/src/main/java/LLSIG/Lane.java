@@ -12,17 +12,30 @@ public class Lane{
 	public boolean endOfChart() {
 		return currentNoteIndex==noteChart.size()-1;
 	} 
+	public void clearOutInactiveNotes() {
+		noteChart.removeIf(note->!note.active);
+	}
 	public boolean noteExists() {
-		return noteExists(0);
+		return getNote()!=null;
 	}
 	public boolean noteExists(int noteOffset) {
-		return currentNoteIndex+noteOffset<noteChart.size();
+		return getNote(noteOffset)!=null;
 	}
 	public Note getNote(int noteOffset) throws IndexOutOfBoundsException {
-		return noteChart.get(currentNoteIndex+noteOffset);
+		for (int i=noteOffset;i<noteChart.size();i++)
+		{
+			Note n = getNote(i);
+			if (n.active) {return n;}
+		}
+		return null;
 	}
 	public Note getNote() {
-		return getNote(0);
+		for (int i=0;i<noteChart.size();i++)
+		{
+			Note n = getNote(i);
+			if (n.active) {return n;}
+		}
+		return null;
 	}
 	public void addNote(Note n) {
 		addNote(n,false);

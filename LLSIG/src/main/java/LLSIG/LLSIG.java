@@ -58,6 +58,9 @@ public class LLSIG implements KeyListener{
 				for (int i=0;i<9;i++) {
 					if (lanePress[i]) {
 						lanePress[i]=false;
+						if (lanes.get(i).noteExists()) {
+							lanes.get(i).getNote()
+						}
 						//TODO Hit detection goes here.
 					}
 				}

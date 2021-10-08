@@ -3,6 +3,7 @@ package main.java.LLSIG;
 public class Note {
 	NoteType type;
 	int start,end;
+	boolean active=true; //Set to false when the note has been scored.
 	public Note(NoteType type,int start,int end) {
 		this.type=type;
 		this.start=start;
