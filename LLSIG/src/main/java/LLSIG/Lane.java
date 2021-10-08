@@ -60,4 +60,16 @@ public class Lane{
 		}
 		System.out.println("Note added: "+n);
 	}
+	public void markMissedNotes() {
+		if (LLSIG.game.PLAYING) {
+			noteChart.forEach((note)->{
+				int diff = note.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+				if (diff<-LLSIG.BAD_TIMING_WINDOW) {
+					note.active=false;
+					lastRating = TimingRating.MISS;
+					lastNote = LLSIG.game.musicPlayer.getPlayPosition();
+				}
+			});
+		}
+	}
 }

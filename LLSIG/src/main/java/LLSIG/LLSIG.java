@@ -60,6 +60,11 @@ public class LLSIG implements KeyListener{
 		gameLoop = new Thread() {
 			public void run() {
 				frameCount++;
+				for (int i=0;i<9;i++) {
+					Lane l =lanes.get(i);
+					l.markMissedNotes();
+					l.clearOutInactiveNotes();
+				}
 				window.repaint();
 			}
 		};
@@ -146,12 +151,14 @@ public class LLSIG implements KeyListener{
 				if (l.noteExists()) {
 					Note n = l.getNote();
 					int diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-					if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;} else
-					if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;} else
-					if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;} else
-					if (Math.abs(diff)<=BAD_TIMING_WINDOW) {l.lastRating=Math.signum(diff)>0?TimingRating.EARLY:TimingRating.LATE;}
-					l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
-					n.active=false;
+					if (diff<=BAD_TIMING_WINDOW) {
+						if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;} else
+						if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;} else
+						if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;} else
+						if (Math.abs(diff)<=BAD_TIMING_WINDOW) {l.lastRating=Math.signum(diff)>0?TimingRating.EARLY:TimingRating.LATE;}
+						l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
+						n.active=false;
+					}
 				}
 			}
 			keyState[lane]=true;
