@@ -142,11 +142,11 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
 			case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
 		}
-		if (LLSIG.game.PLAYING&&lane!=-1) {
+		if (LLSIG.game.PLAYING&&lane!=-1&&EDITMODE) {
 			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
 		}
 		if (lane!=-1) {
-			if (PLAYING) {
+			if (PLAYING&&!EDITMODE) {
 				Lane l = lanes.get(lane);
 				if (l.noteExists()) {
 					Note n = l.getNote();
