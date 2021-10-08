@@ -33,6 +33,11 @@ public class LLSIG implements KeyListener{
 
 	public static boolean[] lanePress = new boolean[9]; //A lane is being requested to being pressed.
 	public static boolean[] keyState = new boolean[9]; //Whether or not the key is pressed down.
+
+	final static int PERFECT_TIMING_WINDOW = 20;
+	final static int EXCELLENT_TIMING_WINDOW = 50;
+	final static int GREAT_TIMING_WINDOW = 100;
+	final static int BAD_TIMING_WINDOW = 150;
 	
 	LLSIG(JFrame f) {
 		this.window = f;
@@ -55,15 +60,6 @@ public class LLSIG implements KeyListener{
 		gameLoop = new Thread() {
 			public void run() {
 				frameCount++;
-				for (int i=0;i<9;i++) {
-					if (lanePress[i]) {
-						lanePress[i]=false;
-						if (lanes.get(i).noteExists()) {
-							lanes.get(i).getNote()
-						}
-						//TODO Hit detection goes here.
-					}
-				}
 				window.repaint();
 			}
 		};
@@ -145,7 +141,19 @@ public class LLSIG implements KeyListener{
 			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
 		}
 		if (lane!=-1) {
-			lanePress[lane]=true;
+			if (PLAYING) {
+				Lane l = lanes.get(lane);
+				if (l.noteExists()) {
+					Note n = l.getNote();
+					int diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+					if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;} else
+					if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;} else
+					if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;} else
+					if (Math.abs(diff)<=BAD_TIMING_WINDOW) {l.lastRating=Math.signum(diff)>0?TimingRating.EARLY:TimingRating.LATE;}
+					l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
+					n.active=false;
+				}
+			}
 			keyState[lane]=true;
 		}
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());

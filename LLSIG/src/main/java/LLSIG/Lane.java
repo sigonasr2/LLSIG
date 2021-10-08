@@ -1,10 +1,11 @@
 package main.java.LLSIG;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Lane{
 	List<Note> noteChart;
 	int currentNoteIndex = 0;
+	TimingRating lastRating = TimingRating.MISS;
+	int lastNote = -1;
 	public Lane(List<Note> noteChart) {
 		super();
 		this.noteChart = noteChart;
