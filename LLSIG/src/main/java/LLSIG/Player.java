@@ -12,21 +12,17 @@ public class Player {
 		jlpp = new MediaPlayer(this.song);
 	}
 	public void play() {
-		new Thread() {
-			public void run() {
-				jlpp.stop();
-				jlpp.play();
-			}
-		}.start();
+		jlpp.stop();
+		jlpp.play();
 	}
 	public void play(long frame) {
-		new Thread() {
-			public void run() {
-				jlpp.stop();
-				jlpp.play();
-				jlpp.seek(new Duration(frame));
-			}
-		}.start();
+		jlpp.play();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		this.seek(frame);
 	}
 	public void pause() {
 		jlpp.pause();
@@ -46,5 +42,8 @@ public class Player {
 	}
 	public double getPlayPosition() {
 		return jlpp.getCurrentTime().toMillis();
+	}
+	public void seek(long frame) {
+		jlpp.seek(new Duration(frame));
 	}
 }

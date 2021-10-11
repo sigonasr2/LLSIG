@@ -48,7 +48,7 @@ public class LLSIG implements KeyListener{
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
 	public boolean EDITMODE = false;
-	public boolean METRONOME = true;
+	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
 	public static int beatNumber = 0;
@@ -111,7 +111,7 @@ public class LLSIG implements KeyListener{
 		PLAYING = new File("music/"+song+".mp3").exists();
 		if (PLAYING)  {
 			this.musicPlayer = new Player(Paths.get("music/"+song+".mp3").toUri().toString());
-			musicPlayer.play(148900l);
+			musicPlayer.play();
 			
 			LoadSongData(song,lanes);
 		}
@@ -263,6 +263,7 @@ public class LLSIG implements KeyListener{
 					testOffset=musicPlayer.getPlayPosition();
 					beatNumber=0;
 				}
+				musicPlayer.seek(148900);
 			}break;
 			case KeyEvent.VK_S:{lane=1;}break;
 			case KeyEvent.VK_D:{lane=2;}break;
