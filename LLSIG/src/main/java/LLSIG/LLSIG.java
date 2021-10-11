@@ -168,13 +168,13 @@ public class LLSIG implements KeyListener{
 				} else {
 					int lane = Integer.parseInt(split[0]);
 					NoteType noteType = NoteType.valueOf(split[1]);
-					int offset = (int)Math.round(Integer.parseInt(split[2])*beatDelay+LLSIG.offset);
+					int offset = (int)Math.round(Double.parseDouble(split[2])*beatDelay+LLSIG.offset);
 					int offset2 = -1;
 					while (lanes.size()<lane) {
 						lanes.add(new Lane(new ArrayList<Note>()));
 					}
 					if (noteType==NoteType.HOLD) {
-						offset2 = (int)Math.round(Integer.parseInt(split[2])*beatDelay+LLSIG.offset);
+						offset2 = (int)Math.round(Double.parseDouble(split[2])*beatDelay+LLSIG.offset);
 						lanes.get(lane-1).addNote(new Note(noteType,offset,offset2));
 					} else {
 						lanes.get(lane-1).addNote(new Note(noteType,offset));
@@ -188,6 +188,13 @@ public class LLSIG implements KeyListener{
 	
 	private void SaveSongData(String song,List<Lane> lanes) {
 		List<String> data = new ArrayList<String>();
+		for (int i=0;i<timings.size();i++) {
+			BeatTiming bt = timings.get(i);
+			data.add(new StringBuilder().append("B").append(",")
+					.append(bt.offset).append(",")
+					.append(bt.bpm)
+					.toString());
+		}
 		for (int lane=0;lane<lanes.size();lane++) {
 			Lane l = lanes.get(lane);
 			int noteCount=0;
@@ -198,8 +205,8 @@ public class LLSIG implements KeyListener{
 				Note n = l.getNote(noteCount++);
 				data.add(new StringBuilder().append(lane+1).append(",")
 						.append(n.getNoteType().name()).append(",")
-						.append(n.getStartFrame()).append(",")
-						.append(n.getEndFrame())
+						.append(n.getBeatSnap()).append(",")
+						.append(n.getBeatSnapEnd())
 						.toString());
 			}
 		}
@@ -259,7 +266,11 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
 		}
 		if (LLSIG.game.PLAYING&&lane!=-1&&EDITMODE) {
-			LLSIG.game.lanes.get(lane).addNote(new Note(NoteType.NORMAL,musicPlayer.getPlayPosition()));
+			Note n = new Note(NoteType.NORMAL,musicPlayer.getPlayPosition());
+			n.active=false;
+			System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*4)/(double)4);
+			n.setBeatSnap(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*4)/(double)4);
+			LLSIG.game.lanes.get(lane).addNote(n);
 		}
 		if (lane!=-1) {
 			if (PLAYING&&!EDITMODE) {

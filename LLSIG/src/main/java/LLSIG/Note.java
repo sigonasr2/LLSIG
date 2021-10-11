@@ -4,6 +4,7 @@ public class Note {
 	NoteType type;
 	int start,end;
 	boolean active=true; //Set to false when the note has been scored.
+	double beatSnapStart,beatSnapEnd = -1;
 	public Note(NoteType type,int start,int end) {
 		this.type=type;
 		this.start=start;
@@ -29,6 +30,18 @@ public class Note {
 	}
 	public void setEndFrame(int end) {
 		this.end = end;
+	}
+	public void setBeatSnap(double value) {
+		this.beatSnapStart=value;
+	}
+	public double getBeatSnap() {
+		return beatSnapStart;
+	}
+	public void setBeatSnapEnd(double value) {
+		this.beatSnapEnd=value;
+	}
+	public double getBeatSnapEnd() {
+		return beatSnapEnd;
 	}
 	@Override
 	public String toString() {
