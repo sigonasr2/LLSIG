@@ -86,12 +86,12 @@ public class JLayerPlayerPausable{
 		return this.play(0);
 	}
 
-	public boolean play(int frameIndexStart) throws JavaLayerException {
+	public boolean play(long frameIndexStart) throws JavaLayerException {
 		//return this.play(frameIndexStart, -1, 52); //original, mas voltava num ponto anterior ao do pause. 52 Sao os frames perdidos ao dar pause
 		return this.play(frameIndexStart, -1, lostFrames);
 	}
 
-	public boolean play(int frameIndexStart, int frameIndexFinal, int correctionFactorInFrames) throws JavaLayerException{
+	public boolean play(long frameIndexStart, int frameIndexFinal, int correctionFactorInFrames) throws JavaLayerException{
 		try {
 			this.bitstream = new Bitstream(this.getAudioInputStream());
 		}
@@ -162,6 +162,10 @@ public class JLayerPlayerPausable{
 		}
 
 		return shouldContinueReadingFrames;
+	}
+	
+	public int getFrameIndex() {
+		return this.frameIndexCurrent;
 	}
 
 	public boolean resume() throws JavaLayerException{

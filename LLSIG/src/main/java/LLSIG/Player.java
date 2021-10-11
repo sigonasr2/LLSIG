@@ -6,17 +6,27 @@ public class Player {
 	String song;
 	public Player(String song) {
 		this.song=song;
-		try {
-			jlpp = new JLayerPlayerPausable(song);
-		} catch (JavaLayerException e) {
-			e.printStackTrace();
-		}
 	}
 	public void play() {
 		new Thread() {
 			public void run() {
 				try {
+					if (jlpp!=null) {jlpp.close();}
+					jlpp = new JLayerPlayerPausable(song);
 					jlpp.play();
+				} catch (JavaLayerException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+	public void play(long frame) {
+		new Thread() {
+			public void run() {
+				try {
+					if (jlpp!=null) {jlpp.close();}
+					jlpp = new JLayerPlayerPausable(song);
+					jlpp.play(frame);
 				} catch (JavaLayerException e) {
 					e.printStackTrace();
 				}
@@ -45,5 +55,8 @@ public class Player {
 	}
 	public int getPlayPosition() {
 		return jlpp.getPosition();
+	}
+	public int getFrameIndex() {
+		return jlpp.getFrameIndex();
 	}
 }

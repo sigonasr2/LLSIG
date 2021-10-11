@@ -1,5 +1,6 @@
 package main.java.LLSIG;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -10,6 +11,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
 import main.java.sig.utils.FileUtils;
@@ -21,15 +27,27 @@ public class LLSIG implements KeyListener{
 	ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(1);
 	int frameCount;
 	public static LLSIG game;
-	int NOTE_SPEED = 850; //The note speed determines how early you see the note. So lowering this number increases the speed.
+	public static Font gameFont = new Font("Century Gothic",Font.BOLD,32);
+	public static int bpm = 120;
+	public static long offset = 0;
+	public static long testOffset = 0;
+	public static double beatDelay = ((1/((double)bpm/60))*1000);
+	
+	public static List<Long> beats = new ArrayList<Long>();
+	
+	int NOTE_SPEED = 750; //The note speed determines how early you see the note. So lowering this number increases the speed.
 	List<Lane> lanes = new ArrayList<Lane>();
+	List<BeatTiming> timings = new ArrayList<BeatTiming>();
 	
 	String song = "MiChi - ONE-315959669";
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
-	public boolean EDITMODE = true;
-	public boolean PLAYING = false; //Whether or not a song is loaded and playing.
+	public boolean EDITMODE = false;
+	public boolean METRONOME = true;
+	public boolean BPM_MEASURE = false;
+	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
+	public static int beatNumber = 0;
 
 	public static boolean[] lanePress = new boolean[9]; //A lane is being requested to being pressed.
 	public static boolean[] keyState = new boolean[9]; //Whether or not the key is pressed down.
@@ -39,8 +57,42 @@ public class LLSIG implements KeyListener{
 	final static int GREAT_TIMING_WINDOW = 100;
 	final static int BAD_TIMING_WINDOW = 150;
 	
+	public static int PERFECT_COUNT = 0;
+	public static int EXCELLENT_COUNT = 0;
+	public static int GREAT_COUNT = 0;
+	public static int EARLY_COUNT = 0;
+	public static int LATE_COUNT = 0;
+	public static int MISS_COUNT = 0;
+	public static int LAST_PERFECT = 0;
+	public static int LAST_EXCELLENT = 0;
+	public static int LAST_GREAT = 0;
+	public static int LAST_EARLY = 0;
+	public static int LAST_LATE = 0;
+	public static int LAST_MISS = 0;
+	public static int COMBO = 0;
+	
+	public static Clip metronome_click1,metronome_click2;
+	
 	LLSIG(JFrame f) {
 		this.window = f;
+		
+		AudioInputStream audioInputStream;
+		try {
+			audioInputStream = AudioSystem.getAudioInputStream(new File("se/metronome_click1.wav").getAbsoluteFile());
+			try {
+				metronome_click1 = AudioSystem.getClip();
+				metronome_click1.open(audioInputStream);
+				audioInputStream = AudioSystem.getAudioInputStream(new File("se/metronome_click2.wav").getAbsoluteFile());
+				metronome_click2 = AudioSystem.getClip();
+				metronome_click2.open(audioInputStream);
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		for (int i=0;i<9;i++) {
 			lanes.add(new Lane(new ArrayList<Note>()));
@@ -60,10 +112,35 @@ public class LLSIG implements KeyListener{
 		gameLoop = new Thread() {
 			public void run() {
 				frameCount++;
+				if (PLAYING) {
+					for (BeatTiming bt : timings) {
+						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset) {
+							bt.active=false;
+							bpm=bt.bpm;
+							offset=bt.offset;
+							beatDelay = ((1/((double)bpm/60))*1000);
+							System.out.println("BPM is "+bpm+". Delay is "+beatDelay);
+						}
+					}
+					if (METRONOME) {
+						if (beatNumber*beatDelay+offset<musicPlayer.getPlayPosition()) {
+							beatNumber++;
+							if (beatNumber%4==0) {
+								metronome_click1.setFramePosition(0);
+								metronome_click1.start();
+							} else {
+								metronome_click2.setFramePosition(0);
+								metronome_click2.start();
+							}
+						}
+					}
+				}
 				for (int i=0;i<9;i++) {
 					Lane l =lanes.get(i);
 					l.markMissedNotes();
-					l.clearOutInactiveNotes();
+					if (!EDITMODE) {
+						l.clearOutInactiveNotes();
+					}
 				}
 				window.repaint();
 			}
@@ -74,22 +151,34 @@ public class LLSIG implements KeyListener{
 	}
 	
 	private void LoadSongData(String song,List<Lane> lanes) {
+		lanes.clear();
+		for (int i=0;i<9;i++) {
+			lanes.add(new Lane(new ArrayList<Note>()));
+		}
+		timings.clear();
 		try {
 			String[] data = FileUtils.readFromFile("music/"+song+".sig");
 			for (String line : data) {
 				String[] split = line.split(Pattern.quote(","));
-				int lane = Integer.parseInt(split[0]);
-				NoteType noteType = NoteType.valueOf(split[1]);
-				int offset = Integer.parseInt(split[2]);
-				int offset2 = -1;
-				while (lanes.size()<lane) {
-					lanes.add(new Lane(new ArrayList<Note>()));
-				}
-				if (noteType==NoteType.HOLD) {
-					offset2 = Integer.parseInt(split[2]);
-					lanes.get(lane-1).addNote(new Note(noteType,offset,offset2));
+				if (split[0].equals("B")) {
+					offset=Integer.parseInt(split[1]);
+					bpm=Integer.parseInt(split[2]);
+					beatDelay = ((1/((double)bpm/60))*1000);
+					timings.add(new BeatTiming(offset,bpm));
 				} else {
-					lanes.get(lane-1).addNote(new Note(noteType,offset));
+					int lane = Integer.parseInt(split[0]);
+					NoteType noteType = NoteType.valueOf(split[1]);
+					int offset = (int)Math.round(Integer.parseInt(split[2])*beatDelay+LLSIG.offset);
+					int offset2 = -1;
+					while (lanes.size()<lane) {
+						lanes.add(new Lane(new ArrayList<Note>()));
+					}
+					if (noteType==NoteType.HOLD) {
+						offset2 = (int)Math.round(Integer.parseInt(split[2])*beatDelay+LLSIG.offset);
+						lanes.get(lane-1).addNote(new Note(noteType,offset,offset2));
+					} else {
+						lanes.get(lane-1).addNote(new Note(noteType,offset));
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -102,6 +191,9 @@ public class LLSIG implements KeyListener{
 		for (int lane=0;lane<lanes.size();lane++) {
 			Lane l = lanes.get(lane);
 			int noteCount=0;
+			for (Note n : l.noteChart) {
+				n.active=true;
+			}
 			while (l.noteExists(noteCount)) {
 				Note n = l.getNote(noteCount++);
 				data.add(new StringBuilder().append(lane+1).append(",")
@@ -120,6 +212,19 @@ public class LLSIG implements KeyListener{
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		game = new LLSIG(f);
 	}
+	
+	public static double approximateBPM() {
+		long totalDiff = 0;
+		if (beats.size()>=2) {
+			for (int i=1;i<beats.size();i++) {
+				totalDiff+=beats.get(i)-beats.get(i-1);
+			}
+			long averageDiff = totalDiff/(beats.size()-1);
+			return (1/((double)averageDiff/1000000000l)*60);
+		} else {
+			return 0;
+		}
+	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -130,7 +235,18 @@ public class LLSIG implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 		int lane = -1;
 		switch (e.getKeyCode()) {
-			case KeyEvent.VK_A:{lane=0;}break;
+			case KeyEvent.VK_A:{
+				if (BPM_MEASURE) {
+					beats.add(System.nanoTime());
+				}
+				lane=0;
+			}break;
+			case KeyEvent.VK_BACK_SLASH:{
+				if (METRONOME) {
+					testOffset=musicPlayer.getPlayPosition();
+					beatNumber=0;
+				}
+			}break;
 			case KeyEvent.VK_S:{lane=1;}break;
 			case KeyEvent.VK_D:{lane=2;}break;
 			case KeyEvent.VK_F:{lane=3;}break;
@@ -152,10 +268,21 @@ public class LLSIG implements KeyListener{
 					Note n = l.getNote();
 					int diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 					if (diff<=BAD_TIMING_WINDOW) {
-						if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;} else
-						if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;} else
-						if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;} else
-						if (Math.abs(diff)<=BAD_TIMING_WINDOW) {l.lastRating=Math.signum(diff)>0?TimingRating.EARLY:TimingRating.LATE;}
+						if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;COMBO++;PERFECT_COUNT++;LAST_PERFECT=LLSIG.game.musicPlayer.getPlayPosition();} else
+						if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;COMBO++;EXCELLENT_COUNT++;LAST_EXCELLENT=LLSIG.game.musicPlayer.getPlayPosition();} else
+						if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;COMBO++;GREAT_COUNT++;LAST_GREAT=LLSIG.game.musicPlayer.getPlayPosition();} else
+						if (Math.abs(diff)<=BAD_TIMING_WINDOW) {
+							if (Math.signum(diff)>0) {
+								l.lastRating=TimingRating.EARLY;
+								EARLY_COUNT++;
+								LAST_EARLY=LLSIG.game.musicPlayer.getPlayPosition();
+							} else {
+								l.lastRating=TimingRating.LATE;
+								LATE_COUNT++;
+								LAST_LATE=LLSIG.game.musicPlayer.getPlayPosition();
+							}
+								COMBO=0;
+							}
 						l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
 						n.active=false;
 					}

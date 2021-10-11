@@ -25,7 +25,7 @@ public class Lane{
 	public Note getNote(int noteOffset) throws IndexOutOfBoundsException {
 		for (int i=noteOffset;i<noteChart.size();i++)
 		{
-			Note n = getNote(i);
+			Note n = noteChart.get(i);
 			if (n.active) {return n;}
 		}
 		return null;
@@ -68,6 +68,9 @@ public class Lane{
 					note.active=false;
 					lastRating = TimingRating.MISS;
 					lastNote = LLSIG.game.musicPlayer.getPlayPosition();
+					LLSIG.COMBO=0;
+					LLSIG.MISS_COUNT++;
+					LLSIG.LAST_MISS=LLSIG.game.musicPlayer.getPlayPosition();
 				}
 			});
 		}

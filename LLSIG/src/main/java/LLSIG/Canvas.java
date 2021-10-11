@@ -22,6 +22,7 @@ public class Canvas extends JPanel{
 	}
 	public void paintComponent(Graphics g) {
 		
+		g.setFont(LLSIG.gameFont);
 		final int MIDDLE_X = this.getWidth()/2;
 		final int MIDDLE_Y = this.getHeight()-(this.getWidth()/2);
 		final int JUDGEMENT_LINE_WIDTH = 64;
@@ -36,8 +37,25 @@ public class Canvas extends JPanel{
 			g.setColor(Color.BLACK);
 			g.fillRect(0,0,this.getWidth(),this.getHeight());
 			g.setColor(Color.WHITE);
-			g.drawString(Integer.toString(LLSIG.game.frameCount),0,16);
-			
+			g.drawString(Integer.toString(LLSIG.game.musicPlayer.getPlayPosition()),0,32);
+			g.drawString(Integer.toString(LLSIG.game.musicPlayer.getFrameIndex()),0,64);
+			if (LLSIG.game.BPM_MEASURE) {
+				g.drawString("Average BPM: "+LLSIG.approximateBPM(),MIDDLE_X-128,MIDDLE_Y+64);
+			} else 
+			if (LLSIG.game.METRONOME) {
+				g.drawString("Offset: "+LLSIG.testOffset,MIDDLE_X-128,MIDDLE_Y+64);
+			} else {
+				g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_PERFECT<500?Color.WHITE:Color.DARK_GRAY);g.drawString("PERFECT: "+LLSIG.PERFECT_COUNT,MIDDLE_X-128,MIDDLE_Y-96);
+				g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_EXCELLENT<500?Color.WHITE:Color.DARK_GRAY);g.drawString("EXCELLENT: "+LLSIG.EXCELLENT_COUNT,MIDDLE_X-128,MIDDLE_Y-64);
+				g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_GREAT<500?Color.WHITE:Color.DARK_GRAY);g.drawString("GREAT: "+LLSIG.GREAT_COUNT,MIDDLE_X-128,MIDDLE_Y-32);
+				g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_EARLY<500?Color.WHITE:Color.DARK_GRAY);g.drawString("EARLY: "+LLSIG.EARLY_COUNT,MIDDLE_X-128,MIDDLE_Y);
+				g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_LATE<500?Color.WHITE:Color.DARK_GRAY);g.drawString("LATE: "+LLSIG.LATE_COUNT,MIDDLE_X-128,MIDDLE_Y+32);
+				g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_MISS<500?Color.WHITE:Color.DARK_GRAY);g.drawString("MISS: "+LLSIG.MISS_COUNT,MIDDLE_X-128,MIDDLE_Y+64);
+			}
+			g.setColor(Color.WHITE); 
+			String comboString = "x"+LLSIG.COMBO+" combo";
+			Rectangle2D bounds = calculateStringBoundsFont(comboString, g.getFont());
+			g.drawString(comboString,(int)(MIDDLE_X-bounds.getCenterX()),MIDDLE_Y+164);
 			for (int i=0;i<9;i++) {
 				int LANE_X_OFFSET = (i-5)*LANE_SPACING_X+LANE_SPACING_X/2+JUDGEMENT_LINE_WIDTH/2;
 				
@@ -50,7 +68,6 @@ public class Canvas extends JPanel{
 				int NOTE_X=(int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*NOTE_DISTANCE-NOTE_SIZE/2);
 				int NOTE_Y=(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*NOTE_DISTANCE-NOTE_SIZE/2);
 				g.fillOval(NOTE_X,NOTE_Y,NOTE_SIZE,NOTE_SIZE);
-				g.setColor(NOTE_COLOR);
 				
 				Lane lane = LLSIG.game.lanes.get(i);
 				if (LLSIG.game.PLAYING) {
@@ -81,6 +98,7 @@ public class Canvas extends JPanel{
 						g.drawString(lane.lastRating.name(),(int)(NOTE_X-textBounds.getCenterX()),(int)(NOTE_Y+textBounds.getHeight()));
 					}
 				}
+				g.setColor(NOTE_COLOR);
 				int noteCounter = 0;
 				while (lane.noteExists(noteCounter)) {
 					Note n = lane.getNote(noteCounter);
