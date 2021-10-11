@@ -1,35 +1,30 @@
 package main.java.LLSIG;
-import javazoom.jl.decoder.JavaLayerException;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
+import javafx.util.Duration;
 
 public class Player {
-	JLayerPlayerPausable jlpp;
-	String song;
+	MediaPlayer jlpp;
+	Media song;
 	public Player(String song) {
-		this.song=song;
+		this.song=new Media(song);
+		jlpp = new MediaPlayer(this.song);
 	}
 	public void play() {
 		new Thread() {
 			public void run() {
-				try {
-					if (jlpp!=null) {jlpp.close();}
-					jlpp = new JLayerPlayerPausable(song);
-					jlpp.play();
-				} catch (JavaLayerException e) {
-					e.printStackTrace();
-				}
+				jlpp.stop();
+				jlpp.play();
 			}
 		}.start();
 	}
 	public void play(long frame) {
 		new Thread() {
 			public void run() {
-				try {
-					if (jlpp!=null) {jlpp.close();}
-					jlpp = new JLayerPlayerPausable(song);
-					jlpp.play(frame);
-				} catch (JavaLayerException e) {
-					e.printStackTrace();
-				}
+				jlpp.stop();
+				jlpp.play();
+				jlpp.seek(new Duration(frame));
 			}
 		}.start();
 	}
@@ -37,26 +32,19 @@ public class Player {
 		jlpp.pause();
 	}
 	public boolean isPaused() {
-		return jlpp.isPaused();
+		return jlpp.getStatus()==Status.PAUSED;
 	}
 	public void resume() {
 		new Thread() {
 			public void run() {
-				try {
-					jlpp.resume();
-				} catch (JavaLayerException e) {
-					e.printStackTrace();
-				}
+				jlpp.play();
 			}
 		}.start();
 	}
 	public void kill() {
-		jlpp.close();
+		jlpp.dispose();
 	}
-	public int getPlayPosition() {
-		return jlpp.getPosition();
-	}
-	public int getFrameIndex() {
-		return jlpp.getFrameIndex();
+	public double getPlayPosition() {
+		return jlpp.getCurrentTime().toMillis();
 	}
 }

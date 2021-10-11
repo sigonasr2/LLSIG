@@ -25,12 +25,24 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/javazoom/jlayer -->
-  <dependency>
-      <groupId>javazoom</groupId>
-      <artifactId>jlayer</artifactId>
-      <version>1.0.1</version>
-  </dependency>
+	    <!-- https://mvnrepository.com/artifact/javazoom/jlayer -->
+	  <dependency>
+	      <groupId>javazoom</groupId>
+	      <artifactId>jlayer</artifactId>
+	      <version>1.0.1</version>
+	  </dependency>
+	  <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
+	<dependency>
+	    <groupId>org.openjfx</groupId>
+	    <artifactId>javafx-media</artifactId>
+	    <version>18-ea+4</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
+	<dependency>
+	    <groupId>org.openjfx</groupId>
+	    <artifactId>javafx-swing</artifactId>
+	    <version>11-ea+24</version>
+	</dependency>
   </dependencies>
 
   <build>

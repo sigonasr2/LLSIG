@@ -5,7 +5,7 @@ public class Lane{
 	List<Note> noteChart;
 	int currentNoteIndex = 0;
 	TimingRating lastRating = TimingRating.MISS;
-	int lastNote = -1;
+	double lastNote = -1;
 	public Lane(List<Note> noteChart) {
 		super();
 		this.noteChart = noteChart;
@@ -63,7 +63,7 @@ public class Lane{
 	public void markMissedNotes() {
 		if (LLSIG.game.PLAYING) {
 			noteChart.forEach((note)->{
-				int diff = note.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+				double diff = note.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 				if (diff<-LLSIG.BAD_TIMING_WINDOW) {
 					note.active=false;
 					lastRating = TimingRating.MISS;

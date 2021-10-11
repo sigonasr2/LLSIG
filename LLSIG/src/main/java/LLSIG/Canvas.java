@@ -37,8 +37,7 @@ public class Canvas extends JPanel{
 			g.setColor(Color.BLACK);
 			g.fillRect(0,0,this.getWidth(),this.getHeight());
 			g.setColor(Color.WHITE);
-			g.drawString(Integer.toString(LLSIG.game.musicPlayer.getPlayPosition()),0,32);
-			g.drawString(Integer.toString(LLSIG.game.musicPlayer.getFrameIndex()),0,64);
+			g.drawString(Double.toString(LLSIG.game.musicPlayer.getPlayPosition()),0,32);
 			if (LLSIG.game.BPM_MEASURE) {
 				g.drawString("Average BPM: "+LLSIG.approximateBPM(),MIDDLE_X-128,MIDDLE_Y+64);
 			} else 

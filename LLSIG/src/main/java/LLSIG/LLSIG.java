@@ -6,11 +6,12 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,6 +22,8 @@ import javax.swing.JFrame;
 
 import main.java.sig.utils.FileUtils;
 
+import javafx.application.Platform;
+
 public class LLSIG implements KeyListener{
 	Player musicPlayer;
 	JFrame window;
@@ -30,8 +33,8 @@ public class LLSIG implements KeyListener{
 	public static LLSIG game;
 	public static Font gameFont = new Font("Century Gothic",Font.BOLD,32);
 	public static int bpm = 120;
-	public static long offset = 0;
-	public static long testOffset = 0;
+	public static double offset = 0;
+	public static double testOffset = 0;
 	public static double beatDelay = ((1/((double)bpm/60))*1000);
 	
 	public static List<Long> beats = new ArrayList<Long>();
@@ -39,15 +42,13 @@ public class LLSIG implements KeyListener{
 	int NOTE_SPEED = 750; //The note speed determines how early you see the note. So lowering this number increases the speed.
 	List<Lane> lanes = new ArrayList<Lane>();
 	List<BeatTiming> timings = new ArrayList<BeatTiming>();
-	HashMap<Long,Long> frameLookup = new HashMap<>();
 	
-	String song = "MiChi - ONE-315959669";
+	String song = "MiChi-ONE";
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
 	public boolean EDITMODE = false;
-	public boolean ANALYSIS = true;
-	public boolean METRONOME = ANALYSIS||true;
+	public boolean METRONOME = true;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
 	public static int beatNumber = 0;
@@ -66,17 +67,23 @@ public class LLSIG implements KeyListener{
 	public static int EARLY_COUNT = 0;
 	public static int LATE_COUNT = 0;
 	public static int MISS_COUNT = 0;
-	public static int LAST_PERFECT = 0;
-	public static int LAST_EXCELLENT = 0;
-	public static int LAST_GREAT = 0;
-	public static int LAST_EARLY = 0;
-	public static int LAST_LATE = 0;
-	public static int LAST_MISS = 0;
+	public static double LAST_PERFECT = 0;
+	public static double LAST_EXCELLENT = 0;
+	public static double LAST_GREAT = 0;
+	public static double LAST_EARLY = 0;
+	public static double LAST_LATE = 0;
+	public static double LAST_MISS = 0;
 	public static int COMBO = 0;
 	
 	public static Clip metronome_click1,metronome_click2;
 	
 	LLSIG(JFrame f) {
+		
+		Platform.startup(() ->
+		{
+		    // This block will be executed on JavaFX Thread
+		});
+		
 		this.window = f;
 		
 		AudioInputStream audioInputStream;
@@ -103,10 +110,10 @@ public class LLSIG implements KeyListener{
 
 		PLAYING = new File("music/"+song+".mp3").exists();
 		if (PLAYING)  {
-			this.musicPlayer = new Player("music/"+song+".mp3");
-			musicPlayer.play();
+			this.musicPlayer = new Player(Paths.get("music/"+song+".mp3").toUri().toString());
+			musicPlayer.play(148900l);
 			
-			LoadSongData("MiChi - ONE-315959669",lanes);
+			LoadSongData(song,lanes);
 		}
 		Canvas canvas = new Canvas(f.getSize());
 		window.add(canvas);
@@ -128,11 +135,6 @@ public class LLSIG implements KeyListener{
 					if (METRONOME) {
 						if (beatNumber*beatDelay+offset<musicPlayer.getPlayPosition()) {
 							beatNumber++;
-							if (ANALYSIS) {
-								Long lookup = (long)musicPlayer.getPlayPosition();
-								frameLookup.put(lookup,(long)musicPlayer.getFrameIndex());
-								System.out.println("Mapped Position "+lookup+" to "+frameLookup.get(lookup));
-							}
 							if (beatNumber%4==0) {
 								metronome_click1.setFramePosition(0);
 								metronome_click1.start();
@@ -164,18 +166,12 @@ public class LLSIG implements KeyListener{
 			lanes.add(new Lane(new ArrayList<Note>()));
 		}
 		timings.clear();
-		frameLookup.clear();
 		try {
 			String[] data = FileUtils.readFromFile("music/"+song+".sig");
 			for (String line : data) {
 				String[] split = line.split(Pattern.quote(","));
-				if (split[0].equals("F")) {
-					long position = Long.parseLong(split[1]);
-					long frameIndex = Long.parseLong(split[2]);
-					frameLookup.put(position,frameIndex);
-				} else
 				if (split[0].equals("B")) {
-					offset=Integer.parseInt(split[1]);
+					offset=Double.parseDouble(split[1]);
 					bpm=Integer.parseInt(split[2]);
 					beatDelay = ((1/((double)bpm/60))*1000);
 					timings.add(new BeatTiming(offset,bpm));
@@ -207,13 +203,6 @@ public class LLSIG implements KeyListener{
 			data.add(new StringBuilder().append("B").append(",")
 					.append(bt.offset).append(",")
 					.append(bt.bpm)
-					.toString());
-		}
-		for (Long key : frameLookup.keySet()) {
-			Long frameIndex = frameLookup.get(key);
-			data.add(new StringBuilder().append("F").append(",")
-					.append(key).append(",")
-					.append(frameIndex)
 					.toString());
 		}
 		for (int lane=0;lane<lanes.size();lane++) {
@@ -298,7 +287,7 @@ public class LLSIG implements KeyListener{
 				Lane l = lanes.get(lane);
 				if (l.noteExists()) {
 					Note n = l.getNote();
-					int diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+					double diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 					if (diff<=BAD_TIMING_WINDOW) {
 						if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;COMBO++;PERFECT_COUNT++;LAST_PERFECT=LLSIG.game.musicPlayer.getPlayPosition();} else
 						if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;COMBO++;EXCELLENT_COUNT++;LAST_EXCELLENT=LLSIG.game.musicPlayer.getPlayPosition();} else

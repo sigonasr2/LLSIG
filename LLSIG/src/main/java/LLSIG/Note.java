@@ -2,15 +2,15 @@ package main.java.LLSIG;
 
 public class Note {
 	NoteType type;
-	int start,end;
+	double start,end;
 	boolean active=true; //Set to false when the note has been scored.
 	double beatSnapStart,beatSnapEnd = -1;
-	public Note(NoteType type,int start,int end) {
+	public Note(NoteType type,double start,double end) {
 		this.type=type;
 		this.start=start;
 		this.end=end;
 	}
-	public Note(NoteType type,int start) {
+	public Note(NoteType type,double start) {
 		this(type,start,-1);
 	}
 	public NoteType getNoteType() {
@@ -19,16 +19,16 @@ public class Note {
 	public void setNoteType(NoteType type) {
 		this.type = type;
 	}
-	public int getStartFrame() {
+	public double getStartFrame() {
 		return start;
 	}
-	public void setStartFrame(int start) {
+	public void setStartFrame(double start) {
 		this.start = start;
 	}
-	public int getEndFrame() {
+	public double getEndFrame() {
 		return end;
 	}
-	public void setEndFrame(int end) {
+	public void setEndFrame(double end) {
 		this.end = end;
 	}
 	public void setBeatSnap(double value) {
