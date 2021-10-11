@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -38,13 +39,15 @@ public class LLSIG implements KeyListener{
 	int NOTE_SPEED = 750; //The note speed determines how early you see the note. So lowering this number increases the speed.
 	List<Lane> lanes = new ArrayList<Lane>();
 	List<BeatTiming> timings = new ArrayList<BeatTiming>();
+	HashMap<Long,Long> frameLookup = new HashMap<>();
 	
 	String song = "MiChi - ONE-315959669";
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
 	public boolean EDITMODE = false;
-	public boolean METRONOME = true;
+	public boolean ANALYSIS = true;
+	public boolean METRONOME = ANALYSIS||true;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
 	public static int beatNumber = 0;
@@ -125,6 +128,11 @@ public class LLSIG implements KeyListener{
 					if (METRONOME) {
 						if (beatNumber*beatDelay+offset<musicPlayer.getPlayPosition()) {
 							beatNumber++;
+							if (ANALYSIS) {
+								Long lookup = (long)musicPlayer.getPlayPosition();
+								frameLookup.put(lookup,(long)musicPlayer.getFrameIndex());
+								System.out.println("Mapped Position "+lookup+" to "+frameLookup.get(lookup));
+							}
 							if (beatNumber%4==0) {
 								metronome_click1.setFramePosition(0);
 								metronome_click1.start();
@@ -156,10 +164,16 @@ public class LLSIG implements KeyListener{
 			lanes.add(new Lane(new ArrayList<Note>()));
 		}
 		timings.clear();
+		frameLookup.clear();
 		try {
 			String[] data = FileUtils.readFromFile("music/"+song+".sig");
 			for (String line : data) {
 				String[] split = line.split(Pattern.quote(","));
+				if (split[0].equals("F")) {
+					long position = Long.parseLong(split[1]);
+					long frameIndex = Long.parseLong(split[2]);
+					frameLookup.put(position,frameIndex);
+				} else
 				if (split[0].equals("B")) {
 					offset=Integer.parseInt(split[1]);
 					bpm=Integer.parseInt(split[2]);
@@ -193,6 +207,13 @@ public class LLSIG implements KeyListener{
 			data.add(new StringBuilder().append("B").append(",")
 					.append(bt.offset).append(",")
 					.append(bt.bpm)
+					.toString());
+		}
+		for (Long key : frameLookup.keySet()) {
+			Long frameIndex = frameLookup.get(key);
+			data.add(new StringBuilder().append("F").append(",")
+					.append(key).append(",")
+					.append(frameIndex)
 					.toString());
 		}
 		for (int lane=0;lane<lanes.size();lane++) {
