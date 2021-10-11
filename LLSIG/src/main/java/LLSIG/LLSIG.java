@@ -75,6 +75,9 @@ public class LLSIG implements KeyListener{
 	public static double LAST_MISS = 0;
 	public static int COMBO = 0;
 	
+	public final static long TIMEPERTICK = 16666667l;
+    public static double DRAWTIME=0;
+	
 	public static Clip metronome_click1,metronome_click2;
 	
 	LLSIG(JFrame f) {
@@ -119,45 +122,63 @@ public class LLSIG implements KeyListener{
 		window.add(canvas);
 		window.setVisible(true);
 		window.addKeyListener(this);
-		gameLoop = new Thread() {
-			public void run() {
-				frameCount++;
-				if (PLAYING) {
-					for (BeatTiming bt : timings) {
-						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset) {
-							bt.active=false;
-							bpm=bt.bpm;
-							offset=bt.offset;
-							beatDelay = ((1/((double)bpm/60))*1000);
-							System.out.println("BPM is "+bpm+". Delay is "+beatDelay);
-						}
-					}
-					if (METRONOME) {
-						if (beatNumber*beatDelay+offset<musicPlayer.getPlayPosition()) {
-							beatNumber++;
-							if (beatNumber%4==0) {
-								metronome_click1.setFramePosition(0);
-								metronome_click1.start();
-							} else {
-								metronome_click2.setFramePosition(0);
-								metronome_click2.start();
-							}
-						}
-					}
-				}
-				for (int i=0;i<9;i++) {
-					Lane l =lanes.get(i);
-					l.markMissedNotes();
-					if (!EDITMODE) {
-						l.clearOutInactiveNotes();
-					}
-				}
-				window.repaint();
-			}
-		};
 		
-		//SaveSongData("MiChi - ONE-315959669",lanes);
-		stpe.scheduleAtFixedRate(gameLoop, 0, 16666666l, TimeUnit.NANOSECONDS);
+		new Thread() {
+            public void run(){
+                while (true) {
+                    long startTime = System.nanoTime();
+                    frameCount++;
+    				if (PLAYING) {
+    					for (BeatTiming bt : timings) {
+    						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset) {
+    							bt.active=false;
+    							bpm=bt.bpm;
+    							offset=bt.offset;
+    							beatDelay = ((1/((double)bpm/60))*1000);
+    							System.out.println("BPM is "+bpm+". Delay is "+beatDelay);
+    						}
+    					}
+    					if (METRONOME) {
+    						if (beatNumber*beatDelay+offset<musicPlayer.getPlayPosition()) {
+    							beatNumber++;
+    							if (beatNumber%4==0) {
+    								metronome_click1.setFramePosition(0);
+    								metronome_click1.start();
+    							} else {
+    								metronome_click2.setFramePosition(0);
+    								metronome_click2.start();
+    							}
+    						}
+    					}
+    				}
+    				for (int i=0;i<9;i++) {
+    					Lane l =lanes.get(i);
+    					l.markMissedNotes();
+    					if (!EDITMODE) {
+    						l.clearOutInactiveNotes();
+    					}
+    				}
+                    window.repaint();
+                    long endTime = System.nanoTime();
+                    long diff = endTime-startTime;
+                    if (diff>TIMEPERTICK) { //Took longer than 1/60th of a second. No sleep.
+                        System.err.println("Frame Drawing took longer than "+TIMEPERTICK+"ns to calculate ("+diff+"ns total)!");
+                    } else {
+                        try {
+                            long sleepTime = TIMEPERTICK - diff;
+                            long millis = (sleepTime)/1000000;
+                            int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
+                            //System.out.println("FRAME DRAWING: Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
+                            DRAWTIME = (double)diff/1000000;
+                            f.setTitle("Game Loop: "+DRAWTIME+"ms");
+                            Thread.sleep(millis,nanos);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }.start();
 	}
 	
 	private void LoadSongData(String song,List<Lane> lanes) {
