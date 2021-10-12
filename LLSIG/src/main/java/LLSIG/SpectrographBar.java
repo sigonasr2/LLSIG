@@ -29,7 +29,7 @@ public class SpectrographBar {
     }
     public void draw(Graphics g,int x,int w,int h) {
     	if (current_magnitude!=NO_UPDATE) {
-    		System.out.println(current_magnitude);
+    		//System.out.println(current_magnitude);
 	        int colVal = (int)(((60d-Math.abs(current_magnitude))/60d)*255);
 	        g.setColor(new Color(colVal,colVal,colVal,colVal));
 	        g.fillRect(x,0,w,h);
