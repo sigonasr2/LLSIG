@@ -5,17 +5,29 @@ import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.awt.font.FontRenderContext;
 import java.awt.Font;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-public class Canvas extends JPanel{
+import javafx.scene.media.AudioSpectrumListener;
+
+public class Canvas extends JPanel implements AudioSpectrumListener{
 	final Color NOTE_COLOR = new Color(196,116,116);
+	ArrayList<SpectrographBar> spectrograph = new ArrayList<SpectrographBar>();
 	
 	public Canvas(Dimension size) {
 		super();
 		this.setSize(size);
 		this.setMinimumSize(size);
 	}
+
+	public void update() {
+		for (int i=0;i<spectrograph.size();i++) {
+			SpectrographBar sb = spectrograph.get(i);
+			sb.update();
+		}
+	}
+
 	public Rectangle2D calculateStringBoundsFont(String msg, Font font) {
 		FontRenderContext frc = this.getFontMetrics(font).getFontRenderContext();
 		return font.getStringBounds(msg, frc);
@@ -36,6 +48,14 @@ public class Canvas extends JPanel{
 		if (LLSIG.game!=null) {
 			g.setColor(Color.BLACK);
 			g.fillRect(0,0,this.getWidth(),this.getHeight());
+
+			final int SPECTROBAR_SIZE = this.getWidth()/spectrograph.size();
+
+			for (int i=0;i<spectrograph.size();i++) {
+				SpectrographBar sb = spectrograph.get(i);
+				sb.draw(g,SPECTROBAR_SIZE*i,SPECTROBAR_SIZE,this.getHeight());
+			}
+
 			g.setColor(Color.WHITE);
 			g.drawString(Double.toString(LLSIG.game.musicPlayer.getPlayPosition()),0,32);
 			if (LLSIG.game.BPM_MEASURE) {
@@ -110,6 +130,19 @@ public class Canvas extends JPanel{
 					}
 					noteCounter++;
 				}
+			}
+		}
+	}
+	@Override
+	public void spectrumDataUpdate(double timestamp, double duration, float[] magnitudes, float[] phases) {
+		if (spectrograph.size()!=magnitudes.length) {
+			spectrograph.clear();
+			for (float f : magnitudes) {
+				spectrograph.add(new SpectrographBar(f));
+			}
+		} else {
+			for (int i=0;i<magnitudes.length;i++) {
+				spectrograph.get(i).update(magnitudes[i]);
 			}
 		}
 	}

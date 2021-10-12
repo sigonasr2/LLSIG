@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import java.nio.file.Paths;
@@ -128,6 +127,7 @@ public class LLSIG implements KeyListener{
                 while (true) {
                     long startTime = System.nanoTime();
                     frameCount++;
+					canvas.update();
     				if (PLAYING) {
     					for (BeatTiming bt : timings) {
     						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset) {
