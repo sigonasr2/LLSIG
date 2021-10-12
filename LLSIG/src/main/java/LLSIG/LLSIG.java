@@ -118,6 +118,7 @@ public class LLSIG implements KeyListener{
 			LoadSongData(song,lanes);
 		}
 		Canvas canvas = new Canvas(f.getSize());
+		musicPlayer.setAudioSpectrumListener(canvas);
 		window.add(canvas);
 		window.setVisible(true);
 		window.addKeyListener(this);

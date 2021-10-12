@@ -1,4 +1,5 @@
 package main.java.LLSIG;
+import javafx.scene.media.AudioSpectrumListener;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -45,5 +46,8 @@ public class Player {
 	}
 	public void seek(long frame) {
 		jlpp.seek(new Duration(frame));
+	}
+	public void setAudioSpectrumListener(AudioSpectrumListener listener) {
+		jlpp.setAudioSpectrumListener(listener);
 	}
 }
