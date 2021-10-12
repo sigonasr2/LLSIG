@@ -279,34 +279,54 @@ public class LLSIG implements KeyListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		int lane = -1;
-		switch (e.getKeyCode()) {
-			case KeyEvent.VK_A:{
-				if (BPM_MEASURE) {
-					beats.add(System.nanoTime());
-				}
-				lane=0;
-			}break;
-			case KeyEvent.VK_BACK_SLASH:{
-				if (METRONOME) {
-					testOffset=musicPlayer.getPlayPosition();
-					beatNumber=0;
-				}
-				musicPlayer.seek(148900);
-			}break;
-			case KeyEvent.VK_S:{lane=1;}break;
-			case KeyEvent.VK_D:{lane=2;}break;
-			case KeyEvent.VK_F:{lane=3;}break;
-			case KeyEvent.VK_SPACE:{lane=4;}break;
-			case KeyEvent.VK_J:{lane=5;}break;
-			case KeyEvent.VK_K:{lane=6;}break;
-			case KeyEvent.VK_L:{lane=7;}break;
-			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
-			case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
-			case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
-			case KeyEvent.VK_DOWN:{EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;}break;
-			case KeyEvent.VK_RIGHT:{EDITOR_BEAT_DIVISIONS=Math.max(EDITOR_BEAT_DIVISIONS*2,1);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
-			case KeyEvent.VK_UP:{EDITOR_CURSOR_BEAT=Math.max(EDITOR_CURSOR_BEAT-(1d/EDITOR_BEAT_DIVISIONS),0);}break;
-			case KeyEvent.VK_LEFT:{EDITOR_BEAT_DIVISIONS=(int)Math.max(Math.floor(EDITOR_BEAT_DIVISIONS/2),0);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
+		if (EDITOR) {
+			switch (e.getKeyCode()) {
+				case KeyEvent.VK_A:{lane=0;}break;
+				case KeyEvent.VK_S:{lane=1;}break;
+				case KeyEvent.VK_D:{lane=2;}break;
+				case KeyEvent.VK_F:{lane=3;}break;
+				case KeyEvent.VK_SPACE:{lane=4;}break;
+				case KeyEvent.VK_J:{lane=5;}break;
+				case KeyEvent.VK_K:{lane=6;}break;
+				case KeyEvent.VK_L:{lane=7;}break;
+				case KeyEvent.VK_SEMICOLON:{lane=8;}break;
+				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
+				case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
+				case KeyEvent.VK_DOWN:{EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;}break;
+				case KeyEvent.VK_RIGHT:{EDITOR_BEAT_DIVISIONS=Math.max(EDITOR_BEAT_DIVISIONS*2,1);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
+				case KeyEvent.VK_UP:{EDITOR_CURSOR_BEAT=Math.max(EDITOR_CURSOR_BEAT-(1d/EDITOR_BEAT_DIVISIONS),0);}break;
+				case KeyEvent.VK_LEFT:{EDITOR_BEAT_DIVISIONS=(int)Math.max(Math.floor(EDITOR_BEAT_DIVISIONS/2),0);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
+			}
+		} else {
+			switch (e.getKeyCode()) {
+				case KeyEvent.VK_A:{
+					if (BPM_MEASURE) {
+						beats.add(System.nanoTime());
+					}
+					lane=0;
+				}break;
+				case KeyEvent.VK_BACK_SLASH:{
+					if (METRONOME) {
+						testOffset=musicPlayer.getPlayPosition();
+						beatNumber=0;
+					}
+					musicPlayer.seek(148900);
+				}break;
+				case KeyEvent.VK_S:{lane=1;}break;
+				case KeyEvent.VK_D:{lane=2;}break;
+				case KeyEvent.VK_F:{lane=3;}break;
+				case KeyEvent.VK_SPACE:{lane=4;}break;
+				case KeyEvent.VK_J:{lane=5;}break;
+				case KeyEvent.VK_K:{lane=6;}break;
+				case KeyEvent.VK_L:{lane=7;}break;
+				case KeyEvent.VK_SEMICOLON:{lane=8;}break;
+				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
+				case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
+				case KeyEvent.VK_DOWN:{EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;}break;
+				case KeyEvent.VK_RIGHT:{EDITOR_BEAT_DIVISIONS=Math.max(EDITOR_BEAT_DIVISIONS*2,1);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
+				case KeyEvent.VK_UP:{EDITOR_CURSOR_BEAT=Math.max(EDITOR_CURSOR_BEAT-(1d/EDITOR_BEAT_DIVISIONS),0);}break;
+				case KeyEvent.VK_LEFT:{EDITOR_BEAT_DIVISIONS=(int)Math.max(Math.floor(EDITOR_BEAT_DIVISIONS/2),0);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
+			}
 		}
 		if (lane!=-1) {
 			if (PLAYING&&EDITMODE) {
