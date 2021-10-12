@@ -16,8 +16,8 @@ public class SpectrographBar {
         update(NO_UPDATE);
     }
     public void update(float value) {
-        if (value!=NO_UPDATE) {
-            if (Math.abs(current_magnitude)>0.3f) {
+        if (value==NO_UPDATE) {
+            if (Math.abs(current_magnitude)>1f) {
                 current_magnitude/=1.01f;
             } else {
                 current_magnitude=0;
@@ -27,8 +27,11 @@ public class SpectrographBar {
         }
     }
     public void draw(Graphics g,int x,int w,int h) {
-        int colVal = (int)((Math.abs(current_magnitude)/60d)*255);
-        g.setColor(new Color(colVal,colVal,colVal,colVal));
-        g.fillRect(x,0,w,h);
+    	if (current_magnitude!=NO_UPDATE) {
+    		System.out.println(current_magnitude);
+	        int colVal = (int)(((60d-Math.abs(current_magnitude))/60d)*255);
+	        g.setColor(new Color(colVal,colVal,colVal,colVal));
+	        g.fillRect(x,0,w,h);
+    	}
     }
 }
