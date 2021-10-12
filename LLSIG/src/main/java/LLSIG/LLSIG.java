@@ -50,7 +50,7 @@ public class LLSIG implements KeyListener{
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 
 	public static double EDITOR_CURSOR_BEAT = 0;
 	public static int EDITOR_BEAT_DIVISIONS = 4;
@@ -212,10 +212,15 @@ public class LLSIG implements KeyListener{
 						lanes.add(new Lane(new ArrayList<Note>()));
 					}
 					if (noteType==NoteType.HOLD) {
-						offset2 = (int)Math.round(Double.parseDouble(split[2])*beatDelay+LLSIG.offset);
-						lanes.get(lane-1).addNote(new Note(noteType,offset,offset2));
+						offset2 = (int)Math.round(Double.parseDouble(split[3])*beatDelay+LLSIG.offset);
+						Note n = new Note(noteType,offset,offset2);
+						n.beatSnapStart = Double.parseDouble(split[2]);
+						n.beatSnapEnd = Double.parseDouble(split[3]);
+						lanes.get(lane-1).addNote(n);
 					} else {
-						lanes.get(lane-1).addNote(new Note(noteType,offset));
+						Note n = new Note(noteType,offset);
+						n.beatSnapStart = Double.parseDouble(split[2]);
+						lanes.get(lane-1).addNote(n);
 					}
 				}
 			}

@@ -51,11 +51,11 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 			g.setColor(Color.BLACK);
 			g.fillRect(0,0,this.getWidth(),this.getHeight());
 
-			final int SPECTROBAR_SIZE = this.getWidth()/spectrograph.size();
+			final int SPECTROBAR_SIZE = spectrograph.size()>0?this.getWidth()/spectrograph.size():0;
 
 			for (int i=0;i<spectrograph.size();i++) {
 				SpectrographBar sb = spectrograph.get(i);
-				sb.draw(g,SPECTROBAR_SIZE*i,SPECTROBAR_SIZE,this.getHeight());
+				sb.draw(g,SPECTROBAR_SIZE*i,SPECTROBAR_SIZE,this.getHeight(),this.getWidth()-SPECTROBAR_SIZE*i);
 			}
 			g.setColor(Color.WHITE);
 			g.drawString(Double.toString(LLSIG.game.musicPlayer.getPlayPosition()),0,32);
@@ -63,14 +63,14 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 			if (LLSIG.game.EDITOR) {
 				final int MARGIN_X = 32;
 				final int BEAT_RANGE = 6;
-				final int BEAT_SPACING = 64;
-				final int NOTE_Y=(int)(MIDDLE_Y-NOTE_SIZE/2);
+				final int BEAT_SPACING = 164;
+				final int NOTE_Y=(int)(MIDDLE_Y);
 				for (int y=-BEAT_RANGE;y<BEAT_RANGE;y++) {
 					g.setColor(Color.GRAY);
-					g.fillRect(MARGIN_X,(int)(NOTE_Y+(y)*BEAT_SPACING),this.getWidth()-MARGIN_X,4);
+					g.fillRect(MARGIN_X,(int)(NOTE_Y+(y-LLSIG.EDITOR_CURSOR_BEAT%1)*BEAT_SPACING)+NOTE_SIZE/2,this.getWidth()-MARGIN_X*2,4);
 					g.setColor(Color.DARK_GRAY);
-					for (int yy=0;yy<LLSIG.EDITOR_BEAT_DIVISIONS;yy++) {
-						g.fillRect(MARGIN_X*2,(int)(NOTE_Y+(y)*BEAT_SPACING)+(BEAT_SPACING/LLSIG.EDITOR_BEAT_DIVISIONS)*yy,this.getWidth()-MARGIN_X*2,2);
+					for (int yy=1;yy<=LLSIG.EDITOR_BEAT_DIVISIONS;yy++) {
+						g.fillRect(MARGIN_X*2,(int)(NOTE_Y+(y-LLSIG.EDITOR_CURSOR_BEAT%1)*BEAT_SPACING)+(BEAT_SPACING/LLSIG.EDITOR_BEAT_DIVISIONS)*yy+NOTE_SIZE/2,this.getWidth()-MARGIN_X*4,2);
 					}
 				}
 				for (int i=0;i<9;i++) {
@@ -79,12 +79,12 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 					} else {
 						g.setColor(Color.GRAY);
 					}
-					int NOTE_X=(int)(((this.getWidth()-MARGIN_X*2)/9)*i-NOTE_SIZE/2+MARGIN_X);
+					int NOTE_X=(int)(((this.getWidth()-MARGIN_X)/9)*i+MARGIN_X);
 					g.fillOval(NOTE_X,NOTE_Y,NOTE_SIZE,NOTE_SIZE);
 					Lane lane = LLSIG.game.lanes.get(i);
 					List<Note> notes = lane.noteChart.stream().filter((note)->Math.abs(LLSIG.EDITOR_CURSOR_BEAT-note.beatSnapStart)<BEAT_RANGE).collect(Collectors.toList());
 					for (Note n : notes) {
-						g.fillOval(NOTE_X-NOTE_SIZE/2,(int)(NOTE_Y+(LLSIG.EDITOR_CURSOR_BEAT-n.beatSnapStart)*BEAT_SPACING-NOTE_SIZE/2),NOTE_SIZE,NOTE_SIZE);
+						g.fillOval(NOTE_X,(int)(NOTE_Y+(n.beatSnapStart-LLSIG.EDITOR_CURSOR_BEAT)*BEAT_SPACING),NOTE_SIZE,NOTE_SIZE);
 					}
 				}
 			} else {
