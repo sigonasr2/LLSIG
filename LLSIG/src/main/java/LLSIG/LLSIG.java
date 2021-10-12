@@ -131,7 +131,7 @@ public class LLSIG implements KeyListener{
 					canvas.update();
     				if (PLAYING) {
     					for (BeatTiming bt : timings) {
-    						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset) {
+    						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset&&bt.offset>offset) {
     							bt.active=false;
     							bpm=bt.bpm;
     							offset=bt.offset;
