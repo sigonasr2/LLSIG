@@ -6,6 +6,7 @@ import java.awt.Color;
 public class SpectrographBar {
     final float NO_UPDATE = 999f;
     float current_magnitude = 0.0f;
+    final double CHANGE_SPD = 1.05d;
     SpectrographBar() {
         this(0f);
     }
@@ -17,10 +18,10 @@ public class SpectrographBar {
     }
     public void update(float value) {
         if (value==NO_UPDATE) {
-            if (Math.abs(current_magnitude)>1f) {
-                current_magnitude/=1.01f;
+            if (current_magnitude>-59.7f) {
+                current_magnitude=(float)(CHANGE_SPD/(-60-current_magnitude)+current_magnitude);
             } else {
-                current_magnitude=0;
+                current_magnitude=-60f;
             }
         } else {
             current_magnitude=value;
