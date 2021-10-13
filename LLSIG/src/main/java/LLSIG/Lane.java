@@ -26,7 +26,7 @@ public class Lane{
 		for (int i=noteOffset;i<noteChart.size();i++)
 		{
 			Note n = noteChart.get(i);
-			if (n.active) {return n;}
+			if (n.active||n.active2) {return n;}
 		}
 		return null;
 	}

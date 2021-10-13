@@ -346,11 +346,6 @@ public class LLSIG implements KeyListener{
 				if (l.noteExists()) {
 					Note n = l.getNote();
 					double diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-					double diff2 = n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-					if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active&&diff2<=BAD_TIMING_WINDOW) {
-						judgeNote(l, diff2);
-						n.active2=false;
-					}
 					if (n.active&&diff<=BAD_TIMING_WINDOW) {
 						judgeNote(l, diff);
 						n.active=false;
@@ -397,6 +392,15 @@ public class LLSIG implements KeyListener{
 		}
 		if (lane!=-1) {
 			keyState[lane]=false;
+			Lane l = lanes.get(lane);
+			if (l.noteExists()) {
+				Note n = l.getNote();
+				double diff2 = n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+				if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active&&diff2<=BAD_TIMING_WINDOW) {
+					judgeNote(l, diff2);
+					n.active2=false;
+				}
+			}
 		}
 	}
 }

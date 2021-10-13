@@ -162,7 +162,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 					int noteCounter = 0;
 					while (lane.noteExists(noteCounter)) {
 						Note n = lane.getNote(noteCounter);
-						if (n.active) {
+						if (n.active||n.active2) {
 							double PLAYTIME_RATIO = (1-(((double)n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition())/LLSIG.game.NOTE_SPEED));
 							double PLAYTIME_END_RATIO = (1-(((double)n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition())/LLSIG.game.NOTE_SPEED));
 							if (n.getNoteType()==NoteType.HOLD) {
