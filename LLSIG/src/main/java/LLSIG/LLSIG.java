@@ -161,9 +161,9 @@ public class LLSIG implements KeyListener{
     				for (int i=0;i<9;i++) {
     					Lane l =lanes.get(i);
     					l.markMissedNotes();
-    					if (!EDITMODE) {
+    					/*if (!EDITMODE) {
     						l.clearOutInactiveNotes();
-    					}
+    					}*/
     				}
                     window.repaint();
                     long endTime = System.nanoTime();
@@ -346,23 +346,13 @@ public class LLSIG implements KeyListener{
 				if (l.noteExists()) {
 					Note n = l.getNote();
 					double diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-					if (diff<=BAD_TIMING_WINDOW) {
-						if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;COMBO++;PERFECT_COUNT++;LAST_PERFECT=LLSIG.game.musicPlayer.getPlayPosition();} else
-						if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;COMBO++;EXCELLENT_COUNT++;LAST_EXCELLENT=LLSIG.game.musicPlayer.getPlayPosition();} else
-						if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;COMBO++;GREAT_COUNT++;LAST_GREAT=LLSIG.game.musicPlayer.getPlayPosition();} else
-						if (Math.abs(diff)<=BAD_TIMING_WINDOW) {
-							if (Math.signum(diff)>0) {
-								l.lastRating=TimingRating.EARLY;
-								EARLY_COUNT++;
-								LAST_EARLY=LLSIG.game.musicPlayer.getPlayPosition();
-							} else {
-								l.lastRating=TimingRating.LATE;
-								LATE_COUNT++;
-								LAST_LATE=LLSIG.game.musicPlayer.getPlayPosition();
-							}
-								COMBO=0;
-							}
-						l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
+					double diff2 = n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+					if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active&&diff2<=BAD_TIMING_WINDOW) {
+						judgeNote(l, diff2);
+						n.active2=false;
+					}
+					if (n.active&&diff<=BAD_TIMING_WINDOW) {
+						judgeNote(l, diff);
 						n.active=false;
 					}
 				}
@@ -370,6 +360,25 @@ public class LLSIG implements KeyListener{
 			keyState[lane]=true;
 		}
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
+	}
+
+	private void judgeNote(Lane l, double diff) {
+		if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;COMBO++;PERFECT_COUNT++;LAST_PERFECT=LLSIG.game.musicPlayer.getPlayPosition();} else
+		if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;COMBO++;EXCELLENT_COUNT++;LAST_EXCELLENT=LLSIG.game.musicPlayer.getPlayPosition();} else
+		if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;COMBO++;GREAT_COUNT++;LAST_GREAT=LLSIG.game.musicPlayer.getPlayPosition();} else
+		if (Math.abs(diff)<=BAD_TIMING_WINDOW) {
+			if (Math.signum(diff)>0) {
+				l.lastRating=TimingRating.EARLY;
+				EARLY_COUNT++;
+				LAST_EARLY=LLSIG.game.musicPlayer.getPlayPosition();
+			} else {
+				l.lastRating=TimingRating.LATE;
+				LATE_COUNT++;
+				LAST_LATE=LLSIG.game.musicPlayer.getPlayPosition();
+			}
+				COMBO=0;
+			}
+		l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
 	}
 
 	@Override

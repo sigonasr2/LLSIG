@@ -14,7 +14,7 @@ public class Lane{
 		return currentNoteIndex==noteChart.size()-1;
 	} 
 	public void clearOutInactiveNotes() {
-		noteChart.removeIf(note->!note.active);
+		noteChart.removeIf(note->!note.active&&!note.active2);
 	}
 	public boolean noteExists() {
 		return getNote()!=null;
@@ -64,8 +64,21 @@ public class Lane{
 		if (LLSIG.game.PLAYING) {
 			noteChart.forEach((note)->{
 				double diff = note.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-				if (diff<-LLSIG.BAD_TIMING_WINDOW) {
+				double diff2 = note.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+				if (note.getNoteType()==NoteType.HOLD&&note.active2&&!note.active&&diff2<-LLSIG.BAD_TIMING_WINDOW) {
+					note.active2=false;
+					lastRating = TimingRating.MISS;
+					lastNote = LLSIG.game.musicPlayer.getPlayPosition();
+					LLSIG.COMBO=0;
+					LLSIG.MISS_COUNT++;
+					LLSIG.LAST_MISS=LLSIG.game.musicPlayer.getPlayPosition();
+				}
+				if (note.active&&diff<-LLSIG.BAD_TIMING_WINDOW) {
 					note.active=false;
+					if (note.getNoteType()==NoteType.HOLD) {
+						note.active2=false; //Count as a double miss, since we missed the first part.
+						LLSIG.MISS_COUNT++;
+					}
 					lastRating = TimingRating.MISS;
 					lastNote = LLSIG.game.musicPlayer.getPlayPosition();
 					LLSIG.COMBO=0;

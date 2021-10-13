@@ -4,11 +4,15 @@ public class Note {
 	NoteType type;
 	double start,end;
 	boolean active=true; //Set to false when the note has been scored.
+	boolean active2=false; //Set to false when the end section of the note has been scored.
 	double beatSnapStart,beatSnapEnd = -1;
 	public Note(NoteType type,double start,double end) {
 		this.type=type;
 		this.start=start;
 		this.end=end;
+		if (type==NoteType.HOLD) {
+			this.active2=true;
+		}
 	}
 	public Note(NoteType type,double start) {
 		this(type,start,-1);
