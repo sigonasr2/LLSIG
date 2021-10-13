@@ -15,6 +15,7 @@ import javafx.scene.media.AudioSpectrumListener;
 
 public class Canvas extends JPanel implements AudioSpectrumListener{
 	final Color NOTE_COLOR = new Color(196,116,116);
+	final Color HOLD_NOTE_COLOR = new Color(64,64,64,160);
 	ArrayList<SpectrographBar> spectrograph = new ArrayList<SpectrographBar>();
 	
 	public Canvas(Dimension size) {
@@ -81,10 +82,20 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 					}
 					int NOTE_X=(int)(((this.getWidth()-MARGIN_X)/9)*i+MARGIN_X);
 					g.fillOval(NOTE_X,NOTE_Y,NOTE_SIZE,NOTE_SIZE);
+					g.setColor(NOTE_COLOR);
 					Lane lane = LLSIG.game.lanes.get(i);
-					List<Note> notes = lane.noteChart.stream().filter((note)->Math.abs(LLSIG.EDITOR_CURSOR_BEAT-note.beatSnapStart)<BEAT_RANGE).collect(Collectors.toList());
+					List<Note> notes = lane.noteChart.stream().filter((note)->Math.abs(LLSIG.EDITOR_CURSOR_BEAT-note.beatSnapStart)<BEAT_RANGE||Math.abs(LLSIG.EDITOR_CURSOR_BEAT-note.beatSnapEnd)<BEAT_RANGE).collect(Collectors.toList());
 					for (Note n : notes) {
-						g.fillOval(NOTE_X,(int)(NOTE_Y+(n.beatSnapStart-LLSIG.EDITOR_CURSOR_BEAT)*BEAT_SPACING),NOTE_SIZE,NOTE_SIZE);
+						final int START_Y = (int)(NOTE_Y+(n.beatSnapStart-LLSIG.EDITOR_CURSOR_BEAT)*BEAT_SPACING);
+						final int END_Y = (int)(NOTE_Y+(n.beatSnapEnd-LLSIG.EDITOR_CURSOR_BEAT)*BEAT_SPACING);
+						if (n.getNoteType()==NoteType.HOLD) {
+							Color prevCol = g.getColor();
+							g.setColor(HOLD_NOTE_COLOR);
+							g.fillOval(NOTE_X,END_Y,NOTE_SIZE,NOTE_SIZE);
+							g.setColor(prevCol);
+							g.fillRect(NOTE_X,START_Y,NOTE_SIZE,END_Y-START_Y);
+						}
+						g.fillOval(NOTE_X,START_Y,NOTE_SIZE,NOTE_SIZE);
 					}
 				}
 			} else {
@@ -161,8 +172,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 									(int)(Math.min(0/2+0.5,1)*NOTE_SIZE),(int)(Math.min(0/2+0.5,1)*NOTE_SIZE));
 								} else {
 									Color prevCol = g.getColor();
-									g.setColor(Color.DARK_GRAY);
-
+									g.setColor(HOLD_NOTE_COLOR);
 									Point CORNER1 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_END_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_END_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2));
 									Point CORNER2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2));
 									g.fillPolygon(new int[]{CORNER1.x,CORNER1.x+NOTE_SIZE,CORNER2.x+NOTE_SIZE,CORNER2.x}, new int[]{CORNER1.y+NOTE_SIZE/2,CORNER1.y+NOTE_SIZE/2,CORNER2.y+NOTE_SIZE/2,CORNER2.y+NOTE_SIZE/2}, 4);
