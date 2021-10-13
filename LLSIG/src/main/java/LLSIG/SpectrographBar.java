@@ -28,10 +28,14 @@ public class SpectrographBar {
         }
     }
     public void draw(Graphics g,int x,int w,int h,int x2) {
+        final Color targetCol = Color.CYAN;
     	if (current_magnitude!=NO_UPDATE) {
     		//System.out.println(current_magnitude);
 	        int colVal = (int)(((60d-Math.abs(current_magnitude))/60d)*255);
-	        g.setColor(new Color(colVal,colVal,colVal,Math.min(255,colVal*2)));
+            double r_ratio = targetCol.getRed()/255d;
+            double g_ratio = targetCol.getGreen()/255d;
+            double b_ratio = targetCol.getBlue()/255d;
+	        g.setColor(new Color((int)(colVal*r_ratio),(int)(colVal*g_ratio),(int)(colVal*b_ratio),Math.min(255,colVal*2)));
 	        g.fillRect(x,0,w,h);
 	        g.fillRect(x2,0,w,h);
     	}
