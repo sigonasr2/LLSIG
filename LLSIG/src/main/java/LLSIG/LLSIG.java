@@ -318,6 +318,10 @@ public class LLSIG implements KeyListener{
 						beatNumber=Math.max(0,beatNumber-12);
 					}
 					musicPlayer.seek((long)(Math.floor(musicPlayer.getPlayPosition()-(beatDelay*12))));
+					double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+					LLSIG.game.lanes.forEach((l)->{
+						l.noteChart.forEach((note)->{if (note.getBeatSnap()>noteBeat) {note.markForDeletion();}});
+					});
 				}break;
 				case KeyEvent.VK_S:{lane=1;}break;
 				case KeyEvent.VK_D:{lane=2;}break;

@@ -15,7 +15,7 @@ public class Lane{
 		return currentNoteIndex==noteChart.size()-1;
 	} 
 	public void clearOutInactiveNotes() {
-		noteChart.removeIf(note->!note.active&&!note.active2);
+		noteChart.removeIf(note->note.deleted||(!note.active&&!note.active2));
 	}
 	public boolean noteExists() {
 		return getNote()!=null;

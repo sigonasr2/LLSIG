@@ -6,6 +6,7 @@ public class Note {
 	boolean active=true; //Set to false when the note has been scored.
 	boolean active2=false; //Set to false when the end section of the note has been scored.
 	double beatSnapStart,beatSnapEnd = -1;
+	boolean deleted=false; //Set this marker to delete it on the next frame (when using the editor)
 	public Note(NoteType type,double start,double end) {
 		this.type=type;
 		this.start=start;
@@ -46,6 +47,9 @@ public class Note {
 	}
 	public double getBeatSnapEnd() {
 		return beatSnapEnd;
+	}
+	public void markForDeletion() {
+		deleted=true;
 	}
 	@Override
 	public String toString() {
