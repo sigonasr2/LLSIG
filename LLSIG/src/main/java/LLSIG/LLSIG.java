@@ -399,6 +399,7 @@ public class LLSIG implements KeyListener{
 				Note lastNote = LLSIG.game.lanes.get(lane).lastNoteAdded;
 				if (lastNote!=null) {
 					if (noteBeat-lastNote.getBeatSnap()>=1) {
+						lastNote.setNoteType(NoteType.HOLD);
 						lastNote.setBeatSnapEnd(noteBeat);
 						lastNote.active2=false;
 						LLSIG.game.lanes.get(lane).lastNoteAdded=null;
