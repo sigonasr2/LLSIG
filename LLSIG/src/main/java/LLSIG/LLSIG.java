@@ -139,6 +139,7 @@ public class LLSIG implements KeyListener{
                 while (true) {
                     long startTime = System.nanoTime();
                     frameCount++;
+					canvas.update();
 					if (PLAYING&&EDITOR) {
 						if (!musicPlayer.isPaused()) {
 							EDITOR_CURSOR_BEAT = (musicPlayer.getPlayPosition()-offset)/beatDelay;
@@ -159,9 +160,15 @@ public class LLSIG implements KeyListener{
 								}
 							}
 						}
-					}
-					canvas.update();
+					} else
     				if (PLAYING) {
+						for (int i=0;i<9;i++) {
+							Lane l =lanes.get(i);
+							l.markMissedNotes();
+							/*if (!EDITMODE) {
+								l.clearOutInactiveNotes();
+							}*/
+						}
     					for (BeatTiming bt : timings) {
     						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset&&bt.offset>offset) {
     							bt.active=false;
@@ -184,13 +191,6 @@ public class LLSIG implements KeyListener{
     							}
     						}
     					}
-    				}
-    				for (int i=0;i<9;i++) {
-    					Lane l =lanes.get(i);
-    					l.markMissedNotes();
-    					/*if (!EDITMODE) {
-    						l.clearOutInactiveNotes();
-    					}*/
     				}
                     window.repaint();
                     long endTime = System.nanoTime();
