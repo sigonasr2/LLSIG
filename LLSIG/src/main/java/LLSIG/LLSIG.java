@@ -408,13 +408,24 @@ public class LLSIG implements KeyListener{
 			} else
 			if (PLAYING&&EDITMODE) {
 				if (!LLSIG.game.lanes.get(lane).keyPressed) {
-					Note n = new Note(NoteType.NORMAL,musicPlayer.getPlayPosition());
-					n.active=false;
-					//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
-					n.setBeatSnap(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
-					LLSIG.game.lanes.get(lane).addNote(n);
-					LLSIG.game.lanes.get(lane).lastNoteAdded=n;
-					LLSIG.game.lanes.get(lane).keyPressed=true;
+					Note previousN = LLSIG.game.lanes.get(lane).lastNoteAdded;
+					double snapBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+					boolean allowed=true;
+					if (previousN!=null) {
+						if (previousN.getBeatSnap()==snapBeat) {
+							allowed=false;
+						}
+					}
+
+					if (allowed) {
+						Note n = new Note(NoteType.NORMAL,musicPlayer.getPlayPosition());
+						n.active=false;
+						//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
+						n.setBeatSnap(snapBeat);
+						LLSIG.game.lanes.get(lane).addNote(n);
+						LLSIG.game.lanes.get(lane).lastNoteAdded=n;
+						LLSIG.game.lanes.get(lane).keyPressed=true;
+					}
 				}
 			} else
 			if (PLAYING&&!EDITMODE&&!EDITOR) {
@@ -482,7 +493,7 @@ public class LLSIG implements KeyListener{
 							lastNote.setNoteType(NoteType.HOLD);
 							lastNote.setBeatSnapEnd(noteBeat);
 							lastNote.active2=false;
-							LLSIG.game.lanes.get(lane).lastNoteAdded=null;
+							//LLSIG.game.lanes.get(lane).lastNoteAdded=null;
 						}
 					}
 					LLSIG.game.lanes.get(lane).keyPressed=false;
