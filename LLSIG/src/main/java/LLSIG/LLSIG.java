@@ -142,6 +142,22 @@ public class LLSIG implements KeyListener{
 					if (PLAYING&&EDITOR) {
 						if (!musicPlayer.isPaused()) {
 							EDITOR_CURSOR_BEAT = (musicPlayer.getPlayPosition()-offset)/beatDelay;
+							for (int i=0;i<9;i++) {
+								Lane lane = LLSIG.game.lanes.get(i);
+								if (lane.noteExists()) {
+									Note n = lane.getNote();
+									if (n.getNoteType()==NoteType.HOLD&&n.active2&&n.getBeatSnapEnd()<=EDITOR_CURSOR_BEAT) {
+										clap.setFramePosition(0);
+										clap.start();
+										n.active2=false;
+									} else
+									if (n.getBeatSnap()<=EDITOR_CURSOR_BEAT) {
+										clap.setFramePosition(0);
+										clap.start();
+										n.active=false;
+									}
+								}
+							}
 						}
 					}
 					canvas.update();
@@ -306,7 +322,17 @@ public class LLSIG implements KeyListener{
 				case KeyEvent.VK_K:{lane=6;}break;
 				case KeyEvent.VK_L:{lane=7;}break;
 				case KeyEvent.VK_SEMICOLON:{lane=8;}break;
-				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.seek((long)(Math.floor(EDITOR_CURSOR_BEAT*beatDelay)));PREVIOUS_CURSOR_BEAT=EDITOR_CURSOR_BEAT;musicPlayer.resume();} else {musicPlayer.pause();EDITOR_CURSOR_BEAT=PREVIOUS_CURSOR_BEAT;}}break;
+				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {
+					musicPlayer.seek((long)(Math.floor(EDITOR_CURSOR_BEAT*beatDelay)));
+					PREVIOUS_CURSOR_BEAT=EDITOR_CURSOR_BEAT;
+					LLSIG.game.lanes.forEach((l)->{
+							l.noteChart.forEach((note)->{
+								note.active = note.getBeatSnap()>EDITOR_CURSOR_BEAT;
+								note.active2 = note.getBeatSnapEnd()>EDITOR_CURSOR_BEAT;
+						});
+					});
+					musicPlayer.resume();
+				} else {musicPlayer.pause();EDITOR_CURSOR_BEAT=PREVIOUS_CURSOR_BEAT;}}break;
 				case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
 				case KeyEvent.VK_DOWN:{EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;}break;
 				case KeyEvent.VK_RIGHT:{EDITOR_BEAT_DIVISIONS=Math.max(EDITOR_BEAT_DIVISIONS*2,1);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
@@ -371,7 +397,7 @@ public class LLSIG implements KeyListener{
 					n.active=false;
 					//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
 					n.setBeatSnap(EDITOR_CURSOR_BEAT);
-					LLSIG.game.lanes.get(lane).addNote(n);
+					LLSIG.game.lanes.get(lane).addNote(n,true);
 					LLSIG.game.lanes.get(lane).lastNoteAdded=n;
 				}
 			} else
