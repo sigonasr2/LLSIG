@@ -6,6 +6,7 @@ public class Lane{
 	int currentNoteIndex = 0;
 	TimingRating lastRating = TimingRating.MISS;
 	double lastNote = -1;
+	Note lastNoteAdded;
 	public Lane(List<Note> noteChart) {
 		super();
 		this.noteChart = noteChart;
@@ -34,7 +35,7 @@ public class Lane{
 		for (int i=0;i<noteChart.size();i++)
 		{
 			Note n = getNote(i);
-			if (n.active) {return n;}
+			if (n.active||n.active2) {return n;}
 		}
 		return null;
 	}

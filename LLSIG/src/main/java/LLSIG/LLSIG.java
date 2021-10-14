@@ -79,6 +79,8 @@ public class LLSIG implements KeyListener{
 	public static double LAST_LATE = 0;
 	public static double LAST_MISS = 0;
 	public static int COMBO = 0;
+
+	public final static int NOTE_RECORD_BEAT_SNAP_MULTIPLE = 4; //How many beat divisions max we can snap to.
 	
 	public final static long TIMEPERTICK = 16666667l;
     public static double DRAWTIME=0;
@@ -337,9 +339,10 @@ public class LLSIG implements KeyListener{
 			if (PLAYING&&EDITMODE) {
 				Note n = new Note(NoteType.NORMAL,musicPlayer.getPlayPosition());
 				n.active=false;
-				System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*4)/(double)4);
-				n.setBeatSnap(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*4)/(double)4);
+				//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
+				n.setBeatSnap(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
 				LLSIG.game.lanes.get(lane).addNote(n);
+				LLSIG.game.lanes.get(lane).lastNoteAdded=n;
 			}
 			if (PLAYING&&!EDITMODE&&!EDITOR) {
 				Lane l = lanes.get(lane);
@@ -391,14 +394,27 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
 		}
 		if (lane!=-1) {
-			keyState[lane]=false;
-			Lane l = lanes.get(lane);
-			if (l.noteExists()) {
-				Note n = l.getNote();
-				double diff2 = n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-				if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active&&diff2<=BAD_TIMING_WINDOW) {
-					judgeNote(l, diff2);
-					n.active2=false;
+			if (PLAYING&&EDITMODE) {
+				double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+				Note lastNote = LLSIG.game.lanes.get(lane).lastNoteAdded;
+				if (lastNote!=null) {
+					if (noteBeat-lastNote.getBeatSnap()>=1) {
+						lastNote.setBeatSnapEnd(noteBeat);
+						lastNote.active2=false;
+						LLSIG.game.lanes.get(lane).lastNoteAdded=null;
+					}
+				}
+			}
+			if (PLAYING&&!EDITMODE&&!EDITOR) {
+				keyState[lane]=false;
+				Lane l = lanes.get(lane);
+				if (l.noteExists()) {
+					Note n = l.getNote();
+					double diff2 = n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+					if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active&&diff2<=BAD_TIMING_WINDOW) {
+						judgeNote(l, diff2);
+						n.active2=false;
+					}
 				}
 			}
 		}
