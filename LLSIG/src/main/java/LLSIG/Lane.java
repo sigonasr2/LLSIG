@@ -7,6 +7,7 @@ public class Lane{
 	TimingRating lastRating = TimingRating.MISS;
 	double lastNote = -1;
 	Note lastNoteAdded;
+	boolean keyPressed=false;
 	public Lane(List<Note> noteChart) {
 		super();
 		this.noteChart = noteChart;

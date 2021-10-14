@@ -402,12 +402,15 @@ public class LLSIG implements KeyListener{
 				}
 			} else
 			if (PLAYING&&EDITMODE) {
-				Note n = new Note(NoteType.NORMAL,musicPlayer.getPlayPosition());
-				n.active=false;
-				//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
-				n.setBeatSnap(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
-				LLSIG.game.lanes.get(lane).addNote(n);
-				LLSIG.game.lanes.get(lane).lastNoteAdded=n;
+				if (!LLSIG.game.lanes.get(lane).keyPressed) {
+					Note n = new Note(NoteType.NORMAL,musicPlayer.getPlayPosition());
+					n.active=false;
+					//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
+					n.setBeatSnap(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
+					LLSIG.game.lanes.get(lane).addNote(n);
+					LLSIG.game.lanes.get(lane).lastNoteAdded=n;
+					LLSIG.game.lanes.get(lane).keyPressed=true;
+				}
 			} else
 			if (PLAYING&&!EDITMODE&&!EDITOR) {
 				Lane l = lanes.get(lane);
@@ -466,15 +469,18 @@ public class LLSIG implements KeyListener{
 		}
 		if (lane!=-1) {
 			if (PLAYING&&EDITMODE) {
-				double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
-				Note lastNote = LLSIG.game.lanes.get(lane).lastNoteAdded;
-				if (lastNote!=null) {
-					if (noteBeat-lastNote.getBeatSnap()>=1) {
-						lastNote.setNoteType(NoteType.HOLD);
-						lastNote.setBeatSnapEnd(noteBeat);
-						lastNote.active2=false;
-						LLSIG.game.lanes.get(lane).lastNoteAdded=null;
+				if (LLSIG.game.lanes.get(lane).keyPressed) {
+					double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+					Note lastNote = LLSIG.game.lanes.get(lane).lastNoteAdded;
+					if (lastNote!=null) {
+						if (noteBeat-lastNote.getBeatSnap()>=1) {
+							lastNote.setNoteType(NoteType.HOLD);
+							lastNote.setBeatSnapEnd(noteBeat);
+							lastNote.active2=false;
+							LLSIG.game.lanes.get(lane).lastNoteAdded=null;
+						}
 					}
+					LLSIG.game.lanes.get(lane).keyPressed=false;
 				}
 			}
 			if (PLAYING&&!EDITMODE&&!EDITOR) {
