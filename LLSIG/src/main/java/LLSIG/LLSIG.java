@@ -50,12 +50,11 @@ public class LLSIG implements KeyListener{
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 
 	public static double EDITOR_CURSOR_BEAT = 0;
 	public static double PREVIOUS_CURSOR_BEAT = 0;
 	public static int EDITOR_BEAT_DIVISIONS = 4;
-	public static BeatTiming EDITOR_CURSOR_WINDOW;
 
 	public static int beatNumber = 0;
 
@@ -141,6 +140,10 @@ public class LLSIG implements KeyListener{
                     frameCount++;
 					canvas.update();
 					if (PLAYING&&EDITOR) {
+						for (int i=0;i<9;i++) {
+							Lane l =lanes.get(i);
+							l.clearOutDeletedNotes();
+						}
 						if (!musicPlayer.isPaused()) {
 							EDITOR_CURSOR_BEAT = (musicPlayer.getPlayPosition()-offset)/beatDelay;
 							for (int i=0;i<9;i++) {
@@ -152,7 +155,7 @@ public class LLSIG implements KeyListener{
 										clap.start();
 										n.active2=false;
 									} else
-									if (n.getBeatSnap()<=EDITOR_CURSOR_BEAT) {
+									if (n.active&&n.getBeatSnap()<=EDITOR_CURSOR_BEAT) {
 										clap.setFramePosition(0);
 										clap.start();
 										n.active=false;
@@ -168,6 +171,7 @@ public class LLSIG implements KeyListener{
 							/*if (!EDITMODE) {
 								l.clearOutInactiveNotes();
 							}*/
+							l.clearOutDeletedNotes();
 						}
     					for (BeatTiming bt : timings) {
     						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset&&bt.offset>offset) {
@@ -323,7 +327,7 @@ public class LLSIG implements KeyListener{
 				case KeyEvent.VK_L:{lane=7;}break;
 				case KeyEvent.VK_SEMICOLON:{lane=8;}break;
 				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {
-					musicPlayer.seek((long)(Math.floor(EDITOR_CURSOR_BEAT*beatDelay)));
+					musicPlayer.seek((long)(Math.floor(EDITOR_CURSOR_BEAT*beatDelay)+offset));
 					PREVIOUS_CURSOR_BEAT=EDITOR_CURSOR_BEAT;
 					LLSIG.game.lanes.forEach((l)->{
 							l.noteChart.forEach((note)->{
@@ -386,10 +390,10 @@ public class LLSIG implements KeyListener{
 		if (lane!=-1) {
 			if (EDITOR) {
 				Lane l = LLSIG.game.lanes.get(lane);
-				List<Note> matchingNotes = l.noteChart.stream().filter((note)->note.getBeatSnap()==EDITOR_CURSOR_BEAT||(note.getNoteType()==NoteType.HOLD&&note.getBeatSnap()>=EDITOR_CURSOR_BEAT&&note.getBeatSnapEnd()<=EDITOR_CURSOR_BEAT)).collect(Collectors.toList());
+				List<Note> matchingNotes = l.noteChart.stream().filter((note)->note.getBeatSnap()==EDITOR_CURSOR_BEAT||(note.getNoteType()==NoteType.HOLD&&note.getBeatSnap()<=EDITOR_CURSOR_BEAT&&note.getBeatSnapEnd()>=EDITOR_CURSOR_BEAT)).collect(Collectors.toList());
 				boolean replace=true;
 				for (Note n : matchingNotes) {
-					if (n.getNoteType()==NoteType.HOLD) {replace=false;} //We don't replace the note if the position was exactly matching as we may have wanted to remove the note completely.
+					if (n.getNoteType()!=NoteType.HOLD) {replace=false;} //We don't replace the note if the position was exactly matching as we may have wanted to remove the note completely.
 					n.markForDeletion();
 				}
 				if (replace) {

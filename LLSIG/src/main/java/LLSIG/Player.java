@@ -29,7 +29,7 @@ public class Player {
 		jlpp.pause();
 	}
 	public boolean isPaused() {
-		return jlpp.getStatus()==Status.PAUSED;
+		return jlpp.getStatus()!=Status.PLAYING;
 	}
 	public void resume() {
 		jlpp.play();

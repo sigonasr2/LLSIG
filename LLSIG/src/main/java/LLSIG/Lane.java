@@ -18,6 +18,11 @@ public class Lane{
 	public void clearOutInactiveNotes() {
 		noteChart.removeIf(note->note.deleted||(!note.active&&!note.active2));
 	}
+	public void clearOutDeletedNotes() {
+		if (noteChart.removeIf(note->note.deleted)) {
+			System.out.println("Deleted note from "+this);
+		}
+	}
 	public boolean noteExists() {
 		return getNote()!=null;
 	}

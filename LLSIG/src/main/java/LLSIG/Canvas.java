@@ -91,9 +91,9 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 						if (n.getNoteType()==NoteType.HOLD) {
 							Color prevCol = g.getColor();
 							g.setColor(HOLD_NOTE_COLOR);
-							g.fillOval(NOTE_X,END_Y,NOTE_SIZE,NOTE_SIZE);
+							g.fillRect(NOTE_X,START_Y+NOTE_SIZE/2,NOTE_SIZE,END_Y-START_Y);
 							g.setColor(prevCol);
-							g.fillRect(NOTE_X,START_Y,NOTE_SIZE,END_Y-START_Y);
+							g.fillOval(NOTE_X,END_Y,NOTE_SIZE,NOTE_SIZE);
 						}
 						g.fillOval(NOTE_X,START_Y,NOTE_SIZE,NOTE_SIZE);
 					}
