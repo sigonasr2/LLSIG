@@ -35,7 +35,7 @@ public class Lane{
 		for (int i=0;i<noteChart.size();i++)
 		{
 			Note n = getNote(i);
-			if (n.active||n.active2) {return n;}
+			if (n!=null&&(n.active||n.active2)) {return n;}
 		}
 		return null;
 	}

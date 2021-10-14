@@ -50,7 +50,7 @@ public class LLSIG implements KeyListener{
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
 
 	public static double EDITOR_CURSOR_BEAT = 0;
 	public static double PREVIOUS_CURSOR_BEAT = 0;
@@ -415,7 +415,7 @@ public class LLSIG implements KeyListener{
 					Note n = l.getNote();
 					double diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 					if (n.active&&diff<=BAD_TIMING_WINDOW) {
-						judgeNote(l, diff);
+						judgeNote(l, diff, false);
 						n.active=false;
 					}
 				}
@@ -425,7 +425,7 @@ public class LLSIG implements KeyListener{
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
 	}
 
-	private void judgeNote(Lane l, double diff) {
+	private void judgeNote(Lane l, double diff, boolean allowMiss) {
 		if (Math.abs(diff)<=PERFECT_TIMING_WINDOW) {l.lastRating=TimingRating.PERFECT;COMBO++;PERFECT_COUNT++;LAST_PERFECT=LLSIG.game.musicPlayer.getPlayPosition();} else
 		if (Math.abs(diff)<=EXCELLENT_TIMING_WINDOW) {l.lastRating=TimingRating.EXCELLENT;COMBO++;EXCELLENT_COUNT++;LAST_EXCELLENT=LLSIG.game.musicPlayer.getPlayPosition();} else
 		if (Math.abs(diff)<=GREAT_TIMING_WINDOW) {l.lastRating=TimingRating.GREAT;COMBO++;GREAT_COUNT++;LAST_GREAT=LLSIG.game.musicPlayer.getPlayPosition();} else
@@ -440,7 +440,13 @@ public class LLSIG implements KeyListener{
 				LAST_LATE=LLSIG.game.musicPlayer.getPlayPosition();
 			}
 				COMBO=0;
-			}
+		} else
+		if (allowMiss) {
+			l.lastRating=TimingRating.MISS;
+			MISS_COUNT++;
+			LAST_MISS=LLSIG.game.musicPlayer.getPlayPosition();
+			COMBO=0;
+		}
 		l.lastNote=LLSIG.game.musicPlayer.getPlayPosition();
 	}
 
@@ -477,8 +483,8 @@ public class LLSIG implements KeyListener{
 				if (l.noteExists()) {
 					Note n = l.getNote();
 					double diff2 = n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-					if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active&&diff2<=BAD_TIMING_WINDOW) {
-						judgeNote(l, diff2);
+					if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active) {
+						judgeNote(l, diff2, true);
 						n.active2=false;
 					}
 				}

@@ -165,25 +165,35 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 						if (n.active||n.active2) {
 							double PLAYTIME_RATIO = (1-(((double)n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition())/LLSIG.game.NOTE_SPEED));
 							double PLAYTIME_END_RATIO = (1-(((double)n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition())/LLSIG.game.NOTE_SPEED));
+							double CLAMPED_PLAYTIME_END_RATIO = Math.max(0,PLAYTIME_END_RATIO);
+							double CLAMPED_PLAYTIME_RATIO = Math.min(1,PLAYTIME_RATIO);
+							int START_NOTE_SIZE = (int)(Math.min(Math.min(1,PLAYTIME_RATIO/2+0.5),1)*NOTE_SIZE);
 							if (n.getNoteType()==NoteType.HOLD) {
 								if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()>=LLSIG.game.NOTE_SPEED) {
-									//Use the center to draw the connecting note.
-									g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(0*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(0*NOTE_DISTANCE)-NOTE_SIZE/2),
-									(int)(Math.min(0/2+0.5,1)*NOTE_SIZE),(int)(Math.min(0/2+0.5,1)*NOTE_SIZE));
+									if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
+										//Use the center to draw the connecting note.
+										g.fillOval((int)(MIDDLE_X-NOTE_SIZE/2),(int)(MIDDLE_Y-NOTE_SIZE/2),
+										(int)(Math.min(0/2+0.5,1)*NOTE_SIZE),(int)(Math.min(0/2+0.5,1)*NOTE_SIZE));
+									}
 								} else {
 									Color prevCol = g.getColor();
 									g.setColor(HOLD_NOTE_COLOR);
-									Point CORNER1 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_END_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_END_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2));
-									Point CORNER2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2));
-									g.fillPolygon(new int[]{CORNER1.x,CORNER1.x+NOTE_SIZE,CORNER2.x+NOTE_SIZE,CORNER2.x}, new int[]{CORNER1.y+NOTE_SIZE/2,CORNER1.y+NOTE_SIZE/2,CORNER2.y+NOTE_SIZE/2,CORNER2.y+NOTE_SIZE/2}, 4);
+									int END_NOTE_SIZE = (int)(Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1)*NOTE_SIZE);
+									Point CORNER1 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2));
+									Point CORNER2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2));
+									g.fillPolygon(new int[]{CORNER1.x,CORNER1.x+END_NOTE_SIZE,CORNER2.x+START_NOTE_SIZE,CORNER2.x}, new int[]{CORNER1.y+END_NOTE_SIZE/2,CORNER1.y+END_NOTE_SIZE/2,CORNER2.y+START_NOTE_SIZE/2,CORNER2.y+START_NOTE_SIZE/2}, 4);
 									g.setColor(prevCol);
-									g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_END_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_END_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),
-											(int)(Math.min(PLAYTIME_END_RATIO/2+0.5,1)*NOTE_SIZE),(int)(Math.min(PLAYTIME_END_RATIO/2+0.5,1)*NOTE_SIZE));
+									g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2),
+											END_NOTE_SIZE,END_NOTE_SIZE);
 								}
 							}
-							if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
-								g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),
+							if (n.active&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
+								g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),
 										(int)(Math.min(PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE),(int)(Math.min(PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE));
+							}
+							if (!n.active&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
+								g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),
+										(int)(Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE),(int)(Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE));
 							}
 						}
 						noteCounter++;
