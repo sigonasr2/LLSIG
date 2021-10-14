@@ -46,11 +46,11 @@ public class LLSIG implements KeyListener{
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
-	public boolean EDITMODE = false;
+	public boolean EDITMODE = true;
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
 
 	public static double EDITOR_CURSOR_BEAT = 0;
 	public static double PREVIOUS_CURSOR_BEAT = 0;
@@ -229,29 +229,31 @@ public class LLSIG implements KeyListener{
 			String[] data = FileUtils.readFromFile("music/"+song+".sig");
 			for (String line : data) {
 				String[] split = line.split(Pattern.quote(","));
-				if (split[0].equals("B")) {
-					offset=Double.parseDouble(split[1]);
-					bpm=Integer.parseInt(split[2]);
-					beatDelay = ((1/((double)bpm/60))*1000);
-					timings.add(new BeatTiming(offset,bpm));
-				} else {
-					int lane = Integer.parseInt(split[0]);
-					NoteType noteType = NoteType.valueOf(split[1]);
-					int offset = (int)Math.round(Double.parseDouble(split[2])*beatDelay+LLSIG.offset);
-					int offset2 = -1;
-					while (lanes.size()<lane) {
-						lanes.add(new Lane(new ArrayList<Note>()));
-					}
-					if (noteType==NoteType.HOLD) {
-						offset2 = (int)Math.round(Double.parseDouble(split[3])*beatDelay+LLSIG.offset);
-						Note n = new Note(noteType,offset,offset2);
-						n.beatSnapStart = Double.parseDouble(split[2]);
-						n.beatSnapEnd = Double.parseDouble(split[3]);
-						lanes.get(lane-1).addNote(n);
+				if (split[0].length()>0) {
+					if (split[0].equals("B")) {
+						offset=Double.parseDouble(split[1]);
+						bpm=Integer.parseInt(split[2]);
+						beatDelay = ((1/((double)bpm/60))*1000);
+						timings.add(new BeatTiming(offset,bpm));
 					} else {
-						Note n = new Note(noteType,offset);
-						n.beatSnapStart = Double.parseDouble(split[2]);
-						lanes.get(lane-1).addNote(n);
+						int lane = Integer.parseInt(split[0]);
+						NoteType noteType = NoteType.valueOf(split[1]);
+						int offset = (int)Math.round(Double.parseDouble(split[2])*beatDelay+LLSIG.offset);
+						int offset2 = -1;
+						while (lanes.size()<lane) {
+							lanes.add(new Lane(new ArrayList<Note>()));
+						}
+						if (noteType==NoteType.HOLD) {
+							offset2 = (int)Math.round(Double.parseDouble(split[3])*beatDelay+LLSIG.offset);
+							Note n = new Note(noteType,offset,offset2);
+							n.beatSnapStart = Double.parseDouble(split[2]);
+							n.beatSnapEnd = Double.parseDouble(split[3]);
+							lanes.get(lane-1).addNote(n);
+						} else {
+							Note n = new Note(noteType,offset);
+							n.beatSnapStart = Double.parseDouble(split[2]);
+							lanes.get(lane-1).addNote(n);
+						}
 					}
 				}
 			}
@@ -366,9 +368,8 @@ public class LLSIG implements KeyListener{
 						beatNumber=Math.max(0,beatNumber-12);
 					}
 					musicPlayer.seek((long)(Math.floor(musicPlayer.getPlayPosition()-(beatDelay*12))));
-					double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
 					LLSIG.game.lanes.forEach((l)->{
-						l.noteChart.forEach((note)->{if (note.getBeatSnap()>noteBeat) {note.markForDeletion();}});
+						l.noteChart.forEach((note)->{if (note.start>musicPlayer.getPlayPosition()) {note.markForDeletion();System.out.println("Marked "+note);}});
 					});
 				}break;
 				case KeyEvent.VK_S:{lane=1;}break;
