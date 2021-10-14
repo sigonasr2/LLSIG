@@ -315,9 +315,9 @@ public class LLSIG implements KeyListener{
 				case KeyEvent.VK_BACK_SLASH:{
 					if (METRONOME) {
 						testOffset=musicPlayer.getPlayPosition();
-						beatNumber=0;
+						beatNumber=Math.max(0,beatNumber-12);
 					}
-					musicPlayer.seek(148900);
+					musicPlayer.seek((long)(Math.floor(musicPlayer.getPlayPosition()-(beatDelay*12))));
 				}break;
 				case KeyEvent.VK_S:{lane=1;}break;
 				case KeyEvent.VK_D:{lane=2;}break;
