@@ -53,6 +53,7 @@ public class LLSIG implements KeyListener{
 	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 
 	public static double EDITOR_CURSOR_BEAT = 0;
+	public static double PREVIOUS_CURSOR_BEAT = 0;
 	public static int EDITOR_BEAT_DIVISIONS = 4;
 	public static BeatTiming EDITOR_CURSOR_WINDOW;
 
@@ -85,7 +86,7 @@ public class LLSIG implements KeyListener{
 	public final static long TIMEPERTICK = 16666667l;
     public static double DRAWTIME=0;
 	
-	public static Clip metronome_click1,metronome_click2;
+	public static Clip metronome_click1,metronome_click2,clap;
 	
 	LLSIG(JFrame f) {
 		
@@ -102,6 +103,9 @@ public class LLSIG implements KeyListener{
 				audioInputStream = AudioSystem.getAudioInputStream(new File("se/metronome_click2.wav").getAbsoluteFile());
 				metronome_click2 = AudioSystem.getClip();
 				metronome_click2.open(audioInputStream);
+				audioInputStream = AudioSystem.getAudioInputStream(new File("se/clap.wav").getAbsoluteFile());
+				clap = AudioSystem.getClip();
+				clap.open(audioInputStream);
 			} catch (LineUnavailableException e) {
 				e.printStackTrace();
 			}
@@ -135,6 +139,11 @@ public class LLSIG implements KeyListener{
                 while (true) {
                     long startTime = System.nanoTime();
                     frameCount++;
+					if (PLAYING&&EDITOR) {
+						if (!musicPlayer.isPaused()) {
+							EDITOR_CURSOR_BEAT = (musicPlayer.getPlayPosition()-offset)/beatDelay;
+						}
+					}
 					canvas.update();
     				if (PLAYING) {
     					for (BeatTiming bt : timings) {
@@ -297,7 +306,7 @@ public class LLSIG implements KeyListener{
 				case KeyEvent.VK_K:{lane=6;}break;
 				case KeyEvent.VK_L:{lane=7;}break;
 				case KeyEvent.VK_SEMICOLON:{lane=8;}break;
-				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.resume();} else {musicPlayer.pause();}}break;
+				case KeyEvent.VK_P:{if (LLSIG.game.PLAYING&&musicPlayer.isPaused()) {musicPlayer.seek((long)(Math.floor(EDITOR_CURSOR_BEAT*beatDelay)));PREVIOUS_CURSOR_BEAT=EDITOR_CURSOR_BEAT;musicPlayer.resume();} else {musicPlayer.pause();EDITOR_CURSOR_BEAT=PREVIOUS_CURSOR_BEAT;}}break;
 				case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
 				case KeyEvent.VK_DOWN:{EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;}break;
 				case KeyEvent.VK_RIGHT:{EDITOR_BEAT_DIVISIONS=Math.max(EDITOR_BEAT_DIVISIONS*2,1);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;

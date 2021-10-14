@@ -32,11 +32,7 @@ public class Player {
 		return jlpp.getStatus()==Status.PAUSED;
 	}
 	public void resume() {
-		new Thread() {
-			public void run() {
-				jlpp.play();
-			}
-		}.start();
+		jlpp.play();
 	}
 	public void kill() {
 		jlpp.dispose();
