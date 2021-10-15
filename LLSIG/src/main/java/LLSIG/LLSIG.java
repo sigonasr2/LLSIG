@@ -391,19 +391,22 @@ public class LLSIG implements KeyListener{
 		if (lane!=-1) {
 			if (EDITOR) {
 				Lane l = LLSIG.game.lanes.get(lane);
-				List<Note> matchingNotes = l.noteChart.stream().filter((note)->note.getBeatSnap()==EDITOR_CURSOR_BEAT||(note.getNoteType()==NoteType.HOLD&&note.getBeatSnap()<=EDITOR_CURSOR_BEAT&&note.getBeatSnapEnd()>=EDITOR_CURSOR_BEAT)).collect(Collectors.toList());
-				boolean replace=true;
-				for (Note n : matchingNotes) {
-					if (n.getNoteType()!=NoteType.HOLD) {replace=false;} //We don't replace the note if the position was exactly matching as we may have wanted to remove the note completely.
-					n.markForDeletion();
-				}
-				if (replace) {
-					Note n = new Note(NoteType.NORMAL,beatDelay*EDITOR_CURSOR_BEAT);
-					n.active=false;
-					//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
-					n.setBeatSnap(EDITOR_CURSOR_BEAT);
-					LLSIG.game.lanes.get(lane).addNote(n,true);
-					LLSIG.game.lanes.get(lane).lastNoteAdded=n;
+				if (!l.keyPressed) {
+					List<Note> matchingNotes = l.noteChart.stream().filter((note)->note.getBeatSnap()==EDITOR_CURSOR_BEAT||(note.getNoteType()==NoteType.HOLD&&note.getBeatSnap()<=EDITOR_CURSOR_BEAT&&note.getBeatSnapEnd()>=EDITOR_CURSOR_BEAT)).collect(Collectors.toList());
+					boolean replace=true;
+					for (Note n : matchingNotes) {
+						if (n.getNoteType()!=NoteType.HOLD) {replace=false;} //We don't replace the note if the position was exactly matching as we may have wanted to remove the note completely.
+						n.markForDeletion();
+					}
+					if (replace) {
+						Note n = new Note(NoteType.NORMAL,beatDelay*EDITOR_CURSOR_BEAT);
+						n.active=false;
+						//System.out.println(Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE);
+						n.setBeatSnap(EDITOR_CURSOR_BEAT);
+						LLSIG.game.lanes.get(lane).addNote(n,true);
+						LLSIG.game.lanes.get(lane).lastNoteAdded=n;
+						l.keyPressed=true;
+					}
 				}
 			} else
 			if (PLAYING&&EDITMODE) {
@@ -424,7 +427,6 @@ public class LLSIG implements KeyListener{
 						n.setBeatSnap(snapBeat);
 						LLSIG.game.lanes.get(lane).addNote(n);
 						LLSIG.game.lanes.get(lane).lastNoteAdded=n;
-						LLSIG.game.lanes.get(lane).keyPressed=true;
 					}
 				}
 			} else
@@ -484,6 +486,21 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
 		}
 		if (lane!=-1) {
+			if (EDITOR) {
+				if (LLSIG.game.lanes.get(lane).keyPressed) {
+					Note lastNote = LLSIG.game.lanes.get(lane).lastNoteAdded;
+					if (lastNote!=null) {
+						if (EDITOR_CURSOR_BEAT!=lastNote.getBeatSnap()) {
+							double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+							//Create a hold note to this position.
+							lastNote.setNoteType(NoteType.HOLD);
+							lastNote.setBeatSnapEnd(noteBeat);
+							lastNote.active2=false;
+						}
+					}
+					LLSIG.game.lanes.get(lane).keyPressed=false;
+				}
+			}
 			if (PLAYING&&EDITMODE) {
 				if (LLSIG.game.lanes.get(lane).keyPressed) {
 					double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
