@@ -339,6 +339,8 @@ public class LLSIG implements KeyListener{
 					});
 					musicPlayer.resume();
 				} else {musicPlayer.pause();EDITOR_CURSOR_BEAT=PREVIOUS_CURSOR_BEAT;}}break;
+				case KeyEvent.VK_PAGE_UP:{EDITOR_CURSOR_BEAT=Math.max(EDITOR_CURSOR_BEAT-4,0);}break;
+				case KeyEvent.VK_PAGE_DOWN:{EDITOR_CURSOR_BEAT+=4;}break;
 				case KeyEvent.VK_Q:{if (LLSIG.game.PLAYING) {musicPlayer.pause();SaveSongData(song,lanes);}}break;
 				case KeyEvent.VK_DOWN:{EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;}break;
 				case KeyEvent.VK_RIGHT:{EDITOR_BEAT_DIVISIONS=Math.max(EDITOR_BEAT_DIVISIONS*2,1);EDITOR_CURSOR_BEAT=Math.floor(EDITOR_CURSOR_BEAT*EDITOR_BEAT_DIVISIONS)/EDITOR_BEAT_DIVISIONS;}break;
