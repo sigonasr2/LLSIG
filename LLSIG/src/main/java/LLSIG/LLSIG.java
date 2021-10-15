@@ -46,11 +46,11 @@ public class LLSIG implements KeyListener{
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
-	public boolean EDITMODE = true;
+	public boolean EDITMODE = false;
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 
 	public static double EDITOR_CURSOR_BEAT = 0;
 	public static double PREVIOUS_CURSOR_BEAT = 0;
