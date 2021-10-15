@@ -52,7 +52,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 	public boolean HOLDING_CTRL_KEY = false;
 
 	public static double EDITOR_CURSOR_BEAT = 0;
@@ -497,11 +497,16 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 				if (LLSIG.game.lanes.get(lane).keyPressed) {
 					Note lastNote = LLSIG.game.lanes.get(lane).lastNoteAdded;
 					if (lastNote!=null) {
-						if (EDITOR_CURSOR_BEAT!=lastNote.getBeatSnap()) {
-							double noteBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+						if (EDITOR_CURSOR_BEAT-lastNote.getBeatSnap()>=1) {
+							List<Note> matchingNotes = LLSIG.game.lanes.get(lane).noteChart.stream().filter((note)->(note!=lastNote&&note.getBeatSnap()<=EDITOR_CURSOR_BEAT&&note.getBeatSnap()>=lastNote.getBeatSnap())||(note.getNoteType()==NoteType.HOLD&&((EDITOR_CURSOR_BEAT>=note.getBeatSnap()&&EDITOR_CURSOR_BEAT<=note.getBeatSnapEnd())||(lastNote.getBeatSnap()>=note.getBeatSnap()&&lastNote.getBeatSnap()<=note.getBeatSnapEnd())))).collect(Collectors.toList());
+							for (Note n : matchingNotes) {
+								n.markForDeletion();
+							}
+							double noteBeat = Math.round(EDITOR_CURSOR_BEAT*beatDelay);
 							//Create a hold note to this position.
+							lastNote.setEndFrame(noteBeat);
 							lastNote.setNoteType(NoteType.HOLD);
-							lastNote.setBeatSnapEnd(noteBeat);
+							lastNote.setBeatSnapEnd(EDITOR_CURSOR_BEAT);
 							lastNote.active2=false;
 						}
 					}
