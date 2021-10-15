@@ -3,6 +3,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ import main.java.sig.utils.FileUtils;
 
 import javafx.application.Platform;
 
-public class LLSIG implements KeyListener{
+public class LLSIG implements KeyListener,MouseWheelListener{
 	Player musicPlayer;
 	JFrame window;
 	Thread gameLoop;
@@ -51,6 +53,7 @@ public class LLSIG implements KeyListener{
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
 	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean HOLDING_CTRL_KEY = false;
 
 	public static double EDITOR_CURSOR_BEAT = 0;
 	public static double PREVIOUS_CURSOR_BEAT = 0;
@@ -355,6 +358,7 @@ public class LLSIG implements KeyListener{
 						});
 					});
 				}break;
+				case KeyEvent.VK_CONTROL:{HOLDING_CTRL_KEY=true;}break;
 			}
 		} else {
 			switch (e.getKeyCode()) {
@@ -486,6 +490,7 @@ public class LLSIG implements KeyListener{
 			case KeyEvent.VK_K:{lane=6;}break;
 			case KeyEvent.VK_L:{lane=7;}break;
 			case KeyEvent.VK_SEMICOLON:{lane=8;}break;
+			case KeyEvent.VK_CONTROL:{HOLDING_CTRL_KEY=false;}break;
 		}
 		if (lane!=-1) {
 			if (EDITOR) {
@@ -528,6 +533,21 @@ public class LLSIG implements KeyListener{
 						judgeNote(l, diff2, true);
 						n.active2=false;
 					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if (EDITOR) {
+			if (e.getWheelRotation()!=0) {
+				if (Math.abs(e.getWheelRotation())<0) {
+					//Rotated up.
+					EDITOR_CURSOR_BEAT=Math.max(EDITOR_CURSOR_BEAT-(1d/EDITOR_BEAT_DIVISIONS),0);
+				} else {
+					//Rotated down.
+					EDITOR_CURSOR_BEAT+=1d/EDITOR_BEAT_DIVISIONS;
 				}
 			}
 		}
