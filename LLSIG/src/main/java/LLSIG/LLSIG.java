@@ -52,7 +52,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
 	public boolean HOLDING_CTRL_KEY = false;
 
 	public static double EDITOR_CURSOR_BEAT = 0;
@@ -135,6 +135,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 		window.add(canvas);
 		window.setVisible(true);
 		window.addKeyListener(this);
+		window.addMouseWheelListener(this);
 		
 		new Thread() {
             public void run(){
@@ -175,6 +176,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 								l.clearOutInactiveNotes();
 							}*/
 							l.clearOutDeletedNotes();
+							l.addFromQueue();
 						}
     					for (BeatTiming bt : timings) {
     						if (bt.active&&musicPlayer.getPlayPosition()>=bt.offset&&bt.offset>offset) {
@@ -412,6 +414,8 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 						LLSIG.game.lanes.get(lane).addNote(n,true);
 						LLSIG.game.lanes.get(lane).lastNoteAdded=n;
 						l.keyPressed=true;
+						clap.setFramePosition(0);
+						clap.start();
 					}
 				}
 			} else
@@ -508,6 +512,8 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 							lastNote.setNoteType(NoteType.HOLD);
 							lastNote.setBeatSnapEnd(EDITOR_CURSOR_BEAT);
 							lastNote.active2=false;
+							clap.setFramePosition(0);
+							clap.start();
 						}
 					}
 					LLSIG.game.lanes.get(lane).keyPressed=false;
@@ -540,6 +546,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 					}
 				}
 			}
+			keyState[lane]=false;
 		}
 	}
 
