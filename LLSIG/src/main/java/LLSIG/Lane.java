@@ -65,6 +65,37 @@ public class Lane{
 						break;
 					}
 				}
+				for (Lane l : LLSIG.game.lanes) {
+					if (l!=this) {
+						for (Note nn : l.noteChart) {
+							if (nn.start==n.start) {
+								nn.multiple=true;
+								n.multiple=true;
+							}
+							if (n.getNoteType()==NoteType.HOLD) {
+								if (nn.getNoteType()==NoteType.HOLD) {
+									if (n.start==nn.end) {
+										nn.multiple2=true;
+										n.multiple=true;
+									}
+									if (n.end==nn.start) {
+										nn.multiple=true;
+										n.multiple2=true;
+									} else
+									if (n.end==nn.end) {
+										nn.multiple2=true;
+										n.multiple2=true;
+									}
+								} else {
+									if (n.end==nn.start) {
+										nn.multiple=true;
+										n.multiple2=true;
+									}
+								}
+							}
+						}
+					}
+				}
 				if (!added) {
 					noteChart.add(n);
 				}
