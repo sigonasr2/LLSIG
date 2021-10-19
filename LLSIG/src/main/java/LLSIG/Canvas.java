@@ -68,10 +68,10 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 				final int NOTE_Y=(int)(MIDDLE_Y);
 				for (int y=-BEAT_RANGE;y<BEAT_RANGE;y++) {
 					g.setColor(Color.GRAY);
-					g.fillRect(MARGIN_X,(int)(NOTE_Y+(y-LLSIG.EDITOR_CURSOR_BEAT%1)*BEAT_SPACING)+NOTE_SIZE/2,this.getWidth()-MARGIN_X*2,4);
+					g.fillRect(MARGIN_X,(int)(NOTE_Y+(y-LLSIG.EDITOR_CURSOR_BEAT%1)*BEAT_SPACING)+NOTE_SIZE/2-2,this.getWidth()-MARGIN_X*2,4);
 					g.setColor(Color.DARK_GRAY);
-					for (int yy=1;yy<=LLSIG.EDITOR_BEAT_DIVISIONS;yy++) {
-						g.fillRect(MARGIN_X*2,(int)(NOTE_Y+(y-LLSIG.EDITOR_CURSOR_BEAT%1)*BEAT_SPACING)+(BEAT_SPACING/LLSIG.EDITOR_BEAT_DIVISIONS)*yy+NOTE_SIZE/2,this.getWidth()-MARGIN_X*4,2);
+					for (int yy=1;yy<LLSIG.EDITOR_BEAT_DIVISIONS;yy++) {
+						g.fillRect(MARGIN_X*2,(int)Math.round((NOTE_Y+(y-LLSIG.EDITOR_CURSOR_BEAT%1)*BEAT_SPACING)+(BEAT_SPACING/(LLSIG.EDITOR_BEAT_DIVISIONS))*yy+NOTE_SIZE/2),this.getWidth()-MARGIN_X*4,2);
 					}
 				}
 				for (int i=0;i<9;i++) {
@@ -207,7 +207,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 		if (multiple) {
 			Color drawCol = g.getColor();
 			g.setColor(multiple_col?Color.RED:Color.BLUE);
-			g.fillRoundRect((int)x,(int)(y+(ysize*NOTE_SIZE)/2),(int)(xsize*NOTE_SIZE), 4, 6, 2);
+			g.fillRoundRect((int)x,(int)(y+(ysize*NOTE_SIZE)/2),(int)(xsize*NOTE_SIZE), 8, 4, 24);
 			g.setColor(drawCol);
 		}
 	}

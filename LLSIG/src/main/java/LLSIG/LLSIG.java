@@ -130,7 +130,8 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 			if (!EDITOR) {
 				musicPlayer.play();
 			}
-			
+
+			//musicPlayer.jlpp.setVolume(0);
 			LoadSongData(song,lanes);
 		}
 		Canvas canvas = new Canvas(f.getSize());
@@ -159,13 +160,11 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 								if (lane.noteExists()) {
 									Note n = lane.getNote();
 									if (n.getNoteType()==NoteType.HOLD&&n.active2&&n.getBeatSnapEnd()<=EDITOR_CURSOR_BEAT) {
-										clap.setFramePosition(0);
-										clap.start();
+										new SoundLine("se/clap.wav");
 										n.active2=false;
 									} else
 									if (n.active&&n.getBeatSnap()<=EDITOR_CURSOR_BEAT) {
-										clap.setFramePosition(0);
-										clap.start();
+										new SoundLine("se/clap.wav");
 										n.active=false;
 									}
 								}
