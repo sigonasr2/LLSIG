@@ -103,7 +103,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 					g.drawString("Average BPM: "+LLSIG.approximateBPM(),MIDDLE_X-128,MIDDLE_Y+64);
 				} else 
 				if (LLSIG.game.METRONOME) {
-					g.drawString("Offset: "+LLSIG.testOffset,MIDDLE_X-128,MIDDLE_Y+64);
+					g.drawString("Offset: "+LLSIG.offset,MIDDLE_X-128,MIDDLE_Y+64);
 				} else {
 					g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_PERFECT<500?Color.WHITE:Color.DARK_GRAY);g.drawString("PERFECT: "+LLSIG.PERFECT_COUNT,MIDDLE_X-128,MIDDLE_Y-96);
 					g.setColor(LLSIG.game.musicPlayer.getPlayPosition()-LLSIG.LAST_EXCELLENT<500?Color.WHITE:Color.DARK_GRAY);g.drawString("EXCELLENT: "+LLSIG.EXCELLENT_COUNT,MIDDLE_X-128,MIDDLE_Y-64);

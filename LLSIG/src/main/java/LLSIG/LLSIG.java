@@ -37,7 +37,6 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public static Font gameFont = new Font("Century Gothic",Font.BOLD,32);
 	public static int bpm = 120;
 	public static double offset = 0;
-	public static double testOffset = 0;
 	public static double beatDelay = ((1/((double)bpm/60))*1000);
 	public static boolean lastHold = false; //A toggle. Decides primary/secondary color marking.
 	
@@ -47,15 +46,15 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	List<Lane> lanes = new ArrayList<Lane>();
 	List<BeatTiming> timings = new ArrayList<BeatTiming>();
 	
-	String song = "MiChi-ONE";
+	String song = "02-ワクワクmeetsトリップ";
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
 	public boolean EDITMODE = false;
 	public boolean METRONOME = false;
-	public boolean BPM_MEASURE = false;
+	public boolean BPM_MEASURE = true;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
 	public boolean HOLDING_CTRL_KEY = false;
 
 	public static double EDITOR_CURSOR_BEAT = 0;
@@ -120,7 +119,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 			e.printStackTrace();
 		}
 
-		for (int i=0;i<9;i++) {
+		for (int i=0;i<9;i++) {;
 			lanes.add(new Lane(new ArrayList<Note>()));
 		}
 
@@ -131,7 +130,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 				musicPlayer.play();
 			}
 
-			//musicPlayer.jlpp.setVolume(0);
+			musicPlayer.jlpp.setVolume(1);
 			LoadSongData(song,lanes);
 		}
 		Canvas canvas = new Canvas(f.getSize());
@@ -305,12 +304,33 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	}
 	
 	public static double approximateBPM() {
+		long MAX_BEAT = Long.MIN_VALUE;
+		long MIN_BEAT = Long.MAX_VALUE;
 		long totalDiff = 0;
+		int beatCount=0;
 		if (beats.size()>=2) {
 			for (int i=1;i<beats.size();i++) {
-				totalDiff+=beats.get(i)-beats.get(i-1);
+				long diff = beats.get(i)-beats.get(i-1);
+				if (MAX_BEAT<diff) {
+					MAX_BEAT=diff;
+					continue;
+				} else
+				if (MIN_BEAT>diff) {
+					MIN_BEAT=diff;
+					continue;
+				} else {
+					totalDiff+=diff;
+					beatCount++;
+					long averageDiff = totalDiff/(beatCount);
+					MAX_BEAT = MAX_BEAT - (MAX_BEAT - averageDiff)/10;
+					MIN_BEAT = MIN_BEAT + (averageDiff - MIN_BEAT)/10;
+					//System.out.println("MAX: "+MAX_BEAT+"/MIN: "+MIN_BEAT);
+				}
 			}
-			long averageDiff = totalDiff/(beats.size()-1);
+			long averageDiff = 0;
+			if (beatCount>=1) {
+				averageDiff=totalDiff/(beatCount);
+			}
 			return (1/((double)averageDiff/1000000000l)*60);
 		} else {
 			return 0;
@@ -375,16 +395,24 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 				}break;
 				case KeyEvent.VK_BACK_SLASH:{
 					if (METRONOME) {
-						testOffset=musicPlayer.getPlayPosition();
-						beatNumber=Math.max(0,beatNumber-12);
+						offset=musicPlayer.getPlayPosition();
 					}
+					beatNumber=Math.max(0,beatNumber-12);
 					musicPlayer.seek((long)(Math.floor(musicPlayer.getPlayPosition()-(beatDelay*12))));
 					LLSIG.game.lanes.forEach((l)->{
 						l.noteChart.forEach((note)->{if (note.start>musicPlayer.getPlayPosition()) {note.markForDeletion();System.out.println("Marked "+note);}});
 					});
 				}break;
-				case KeyEvent.VK_S:{lane=1;}break;
-				case KeyEvent.VK_D:{lane=2;}break;
+				case KeyEvent.VK_S:{
+					if (METRONOME) {
+						offset-=10;
+					}
+					lane=1;}break;
+				case KeyEvent.VK_D:{
+					if (METRONOME) {
+						offset+=10;
+					}
+					lane=2;}break;
 				case KeyEvent.VK_F:{lane=3;}break;
 				case KeyEvent.VK_SPACE:{lane=4;}break;
 				case KeyEvent.VK_J:{lane=5;}break;
