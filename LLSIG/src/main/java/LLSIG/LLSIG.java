@@ -37,6 +37,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public static double offset = 0;
 	public static double testOffset = 0;
 	public static double beatDelay = ((1/((double)bpm/60))*1000);
+	public static boolean lastHold = false; //A toggle. Decides primary/secondary color marking.
 	
 	public static List<Long> beats = new ArrayList<Long>();
 	

@@ -201,6 +201,9 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 
 	public void drawNote(Graphics g,double x,double y,double xsize,double ysize,boolean multiple) {
 		g.fillOval((int)x,(int)y,(int)(xsize*NOTE_SIZE),(int)(ysize*NOTE_SIZE));
+		if (multiple) {
+			g.fillRoundRect((int)x,(int)(y+(ysize*NOTE_SIZE)/2),(int)(xsize*NOTE_SIZE), 4, 6, 2);
+		}
 	}
 	@Override
 	public void spectrumDataUpdate(double timestamp, double duration, float[] magnitudes, float[] phases) {

@@ -69,27 +69,37 @@ public class Lane{
 					if (l!=this) {
 						for (Note nn : l.noteChart) {
 							if (nn.start==n.start) {
+								if (!n.multiple&&!nn.multiple) {LLSIG.lastHold=!LLSIG.lastHold;}
 								nn.multiple=true;
 								n.multiple=true;
+								n.multiple_col=nn.multiple_col=LLSIG.lastHold;
 							}
 							if (n.getNoteType()==NoteType.HOLD) {
 								if (nn.getNoteType()==NoteType.HOLD) {
 									if (n.start==nn.end) {
+										if (!n.multiple&&!nn.multiple2) {LLSIG.lastHold=!LLSIG.lastHold;}
 										nn.multiple2=true;
 										n.multiple=true;
+										n.multiple_col=nn.multiple2_col=LLSIG.lastHold;
 									}
 									if (n.end==nn.start) {
+										if (!n.multiple2&&!nn.multiple) {LLSIG.lastHold=!LLSIG.lastHold;}
 										nn.multiple=true;
 										n.multiple2=true;
+										n.multiple2_col=nn.multiple_col=LLSIG.lastHold;
 									} else
 									if (n.end==nn.end) {
+										if (!n.multiple2&&!nn.multiple2) {LLSIG.lastHold=!LLSIG.lastHold;}
 										nn.multiple2=true;
 										n.multiple2=true;
+										n.multiple2_col=nn.multiple2_col=LLSIG.lastHold;
 									}
 								} else {
 									if (n.end==nn.start) {
+										if (!n.multiple2&&!nn.multiple) {LLSIG.lastHold=!LLSIG.lastHold;}
 										nn.multiple=true;
 										n.multiple2=true;
+										n.multiple2_col=nn.multiple_col=LLSIG.lastHold;
 									}
 								}
 							}

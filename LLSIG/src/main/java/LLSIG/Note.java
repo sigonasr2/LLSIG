@@ -9,6 +9,8 @@ public class Note {
 	boolean deleted=false; //Set this marker to delete it on the next frame (when using the editor)
 	boolean multiple=false; //Whether or not to display an indicator showing this is a multi-press note.
 	boolean multiple2=false; //Whether or not to display an indicator showing this is a multi-press note for the ending of the hold.
+	boolean multiple_col=false; //If true, use the secondary color.
+	boolean multiple2_col=false; //If true, use the secondary color.
 	public Note(NoteType type,double start,double end) {
 		this.type=type;
 		this.start=start;
