@@ -111,6 +111,9 @@ public class Lane{
 				}
 				System.out.println("Note added: "+n);
 		}
+		if (addQueue.size()>0) {
+			LLSIG.updateMultipleNoteMarkers();
+		}
 		addQueue.clear();
 	}
 	public void markMissedNotes() {

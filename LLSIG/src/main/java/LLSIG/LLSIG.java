@@ -8,7 +8,9 @@ import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -53,7 +55,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 	public boolean HOLDING_CTRL_KEY = false;
 
 	public static double EDITOR_CURSOR_BEAT = 0;
@@ -148,6 +150,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 						for (int i=0;i<9;i++) {
 							Lane l =lanes.get(i);
 							l.clearOutDeletedNotes();
+							l.addFromQueue();
 						}
 						if (!musicPlayer.isPaused()) {
 							EDITOR_CURSOR_BEAT = (musicPlayer.getPlayPosition()-offset)/beatDelay;
@@ -455,6 +458,37 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 			keyState[lane]=true;
 		}
 		//System.out.println("Pressed "+e.getKeyChar()+" on frame "+musicPlayer.getPlayPosition());
+	}
+	
+	public static void updateMultipleNoteMarkers() {
+		updateMultipleNoteMarkers(LLSIG.game);
+	}
+	public static void updateMultipleNoteMarkers(LLSIG game) {
+		lastHold=false;
+		TreeMap<Double,List<Note>> noteBeatMap = new TreeMap<Double,List<Note>>();
+		for (Lane l : game.lanes) {
+			for (Note n : l.noteChart) {
+				List<Note> map = noteBeatMap.getOrDefault(n.beatSnapStart, new ArrayList<Note>());
+				map.add(n);
+				noteBeatMap.putIfAbsent(n.beatSnapStart, map);
+			}
+		}
+		for (Double d : noteBeatMap.keySet()) {
+			List<Note> notes = noteBeatMap.get(d);
+			if (notes.size()>=2) {
+				for (Note n : notes) {
+					if (d==n.getBeatSnap()) {
+						n.multiple=true;
+						n.multiple_col=lastHold;
+					}
+					if (n.getNoteType()==NoteType.HOLD&&d==n.getBeatSnapEnd()) {
+						n.multiple2=true;
+						n.multiple2_col=lastHold;
+					}
+				}
+				lastHold=!lastHold;
+			}
+		}
 	}
 
 	private void judgeNote(Lane l, double diff, boolean allowMiss) {
