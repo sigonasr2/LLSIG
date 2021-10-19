@@ -173,9 +173,11 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 									Color prevCol = g.getColor();
 									g.setColor(HOLD_NOTE_COLOR);
 									int END_NOTE_SIZE = (int)(Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1)*NOTE_SIZE);
-									Point CORNER1 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2));
-									Point CORNER2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2));
-									g.fillPolygon(new int[]{CORNER1.x,CORNER1.x+END_NOTE_SIZE,CORNER2.x+START_NOTE_SIZE,CORNER2.x}, new int[]{CORNER1.y+END_NOTE_SIZE/2,CORNER1.y+END_NOTE_SIZE/2,CORNER2.y+START_NOTE_SIZE/2,CORNER2.y+START_NOTE_SIZE/2}, 4);
+									Point CORNER1 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-Math.cos(Math.toRadians(90-i*22.5))*(END_NOTE_SIZE/2)),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-Math.sin(Math.toRadians(90-i*22.5))*(END_NOTE_SIZE/2)));
+									Point CORNER2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-Math.cos(Math.toRadians(90-i*22.5))*(START_NOTE_SIZE/2)),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-Math.sin(Math.toRadians(90-i*22.5))*(START_NOTE_SIZE/2)));
+									Point CORNER1_2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-Math.cos(Math.toRadians(270-i*22.5))*(END_NOTE_SIZE/2)),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-Math.sin(Math.toRadians(270-i*22.5))*(END_NOTE_SIZE/2)));
+									Point CORNER2_2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-Math.cos(Math.toRadians(270-i*22.5))*(START_NOTE_SIZE/2)),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-Math.sin(Math.toRadians(270-i*22.5))*(START_NOTE_SIZE/2)));
+									g.fillPolygon(new int[]{CORNER1.x,CORNER1_2.x,CORNER2_2.x,CORNER2.x}, new int[]{CORNER1.y,CORNER1_2.y,CORNER2_2.y,CORNER2.y}, 4);
 									g.setColor(prevCol);
 									drawNote(g,MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2,MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2,Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1),Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1),n.multiple2,n.multiple2_col);
 								}
