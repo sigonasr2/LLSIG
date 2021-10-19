@@ -23,6 +23,7 @@ public class Lane{
 	public void clearOutDeletedNotes() {
 		if (noteChart.removeIf(note->note.deleted)) {
 			System.out.println("Deleted note from "+this);
+			LLSIG.updateMultipleNoteMarkers();
 		}
 	}
 	public boolean noteExists() {

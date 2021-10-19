@@ -471,6 +471,11 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 				List<Note> map = noteBeatMap.getOrDefault(n.beatSnapStart, new ArrayList<Note>());
 				map.add(n);
 				noteBeatMap.putIfAbsent(n.beatSnapStart, map);
+				if (n.getNoteType()==NoteType.HOLD) {
+					map = noteBeatMap.getOrDefault(n.beatSnapEnd, new ArrayList<Note>());
+					map.add(n);
+					noteBeatMap.putIfAbsent(n.beatSnapEnd, map);
+				}
 			}
 		}
 		for (Double d : noteBeatMap.keySet()) {
@@ -487,6 +492,10 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 					}
 				}
 				lastHold=!lastHold;
+			} else {
+				for (Note n : notes) {
+					n.multiple=n.multiple2=false;
+				}
 			}
 		}
 	}
@@ -549,6 +558,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 							lastNote.active2=false;
 							clap.setFramePosition(0);
 							clap.start();
+							updateMultipleNoteMarkers();
 						}
 					}
 					LLSIG.game.lanes.get(lane).keyPressed=false;
@@ -564,6 +574,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 							lastNote.setBeatSnapEnd(noteBeat);
 							lastNote.active2=false;
 							//LLSIG.game.lanes.get(lane).lastNoteAdded=null;
+							updateMultipleNoteMarkers();
 						}
 					}
 					LLSIG.game.lanes.get(lane).keyPressed=false;
@@ -589,7 +600,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if (EDITOR) {
 			if (e.getWheelRotation()!=0) {
-				if (Math.abs(e.getWheelRotation())<0) {
+				if (e.getWheelRotation()<0) {
 					//Rotated up.
 					EDITOR_CURSOR_BEAT=Math.max(EDITOR_CURSOR_BEAT-(1d/EDITOR_BEAT_DIVISIONS),0);
 				} else {
