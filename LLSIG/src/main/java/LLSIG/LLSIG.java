@@ -52,7 +52,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	
 	public boolean EDITMODE = false;
 	public boolean METRONOME = false;
-	public boolean BPM_MEASURE = true;
+	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
 	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
 	public boolean HOLDING_CTRL_KEY = false;
@@ -130,7 +130,9 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 				musicPlayer.play();
 			}
 
-			musicPlayer.jlpp.setVolume(1);
+			if (EDITOR) {
+				musicPlayer.jlpp.setVolume(0.8);
+			}
 			LoadSongData(song,lanes);
 		}
 		Canvas canvas = new Canvas(f.getSize());
@@ -468,6 +470,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 						n.setBeatSnap(snapBeat);
 						LLSIG.game.lanes.get(lane).addNote(n);
 						LLSIG.game.lanes.get(lane).lastNoteAdded=n;
+						LLSIG.game.lanes.get(lane).keyPressed=true;
 					}
 				}
 			} else

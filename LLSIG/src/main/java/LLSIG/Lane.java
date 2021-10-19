@@ -119,7 +119,9 @@ public class Lane{
 	}
 	public void markMissedNotes() {
 		if (LLSIG.game.PLAYING) {
-			noteChart.forEach((note)->{
+			int noteCounter=0;
+			while (noteExists(noteCounter)) {
+				Note note = getNote(noteCounter);
 				double diff = note.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 				double diff2 = note.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 				if (note.getNoteType()==NoteType.HOLD&&note.active2&&!note.active&&diff2<-LLSIG.BAD_TIMING_WINDOW) {
@@ -142,7 +144,11 @@ public class Lane{
 					LLSIG.MISS_COUNT++;
 					LLSIG.LAST_MISS=LLSIG.game.musicPlayer.getPlayPosition();
 				}
-			});
+				if ((note.active||note.active2)&&diff>LLSIG.game.NOTE_SPEED) {
+					break;
+				}
+				noteCounter++;
+			}
 		}
 	}
 }

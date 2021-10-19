@@ -169,12 +169,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 							double CLAMPED_PLAYTIME_RATIO = Math.min(1,PLAYTIME_RATIO);
 							int START_NOTE_SIZE = (int)(Math.min(Math.min(1,PLAYTIME_RATIO/2+0.5),1)*NOTE_SIZE);
 							if (n.getNoteType()==NoteType.HOLD) {
-								if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()>=LLSIG.game.NOTE_SPEED) {
-									if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
-										//Use the center to draw the connecting note.
-										drawNote(g,MIDDLE_X-NOTE_SIZE/2,MIDDLE_Y-NOTE_SIZE/2,Math.min(0/2+0.5,1),Math.min(0/2+0.5,1),false);
-									}
-								} else {
+								if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
 									Color prevCol = g.getColor();
 									g.setColor(HOLD_NOTE_COLOR);
 									int END_NOTE_SIZE = (int)(Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1)*NOTE_SIZE);
@@ -191,6 +186,12 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 							if (!n.active&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
 								drawNote(g,MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2,MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2,Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1),Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1),false);
 							}
+						}
+						if ((n.active2)&&n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition()>LLSIG.game.NOTE_SPEED) {
+							break;
+						} else
+						if ((n.active)&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()>LLSIG.game.NOTE_SPEED) {
+							break;
 						}
 						noteCounter++;
 					}
