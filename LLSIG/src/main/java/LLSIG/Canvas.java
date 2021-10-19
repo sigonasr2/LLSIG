@@ -14,6 +14,7 @@ import java.awt.Point;
 import javafx.scene.media.AudioSpectrumListener;
 
 public class Canvas extends JPanel implements AudioSpectrumListener{
+	final static int NOTE_SIZE = 96;
 	final Color NOTE_COLOR = new Color(196,116,116);
 	final Color HOLD_NOTE_COLOR = new Color(64,64,64,160);
 	ArrayList<SpectrographBar> spectrograph = new ArrayList<SpectrographBar>();
@@ -42,7 +43,6 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 		final int MIDDLE_Y = this.getHeight()-(this.getWidth()/2);
 		final int JUDGEMENT_LINE_WIDTH = 64;
 		final int JUDGEMENT_LINE_HEIGHT = 4;
-		final int NOTE_SIZE = 96;
 		final int LANE_SPACING_X = 100;
 		final int NOTE_DISTANCE = (int)(LLSIG.WINDOW_SIZE.width/2)-NOTE_SIZE;
 		final Color[] colorList = new Color[]{Color.BLACK,Color.BLUE,Color.CYAN,Color.DARK_GRAY,Color.GRAY,Color.GREEN,Color.LIGHT_GRAY,Color.MAGENTA,Color.ORANGE,Color.PINK,Color.RED,Color.WHITE,Color.YELLOW};
@@ -93,9 +93,9 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 							g.setColor(HOLD_NOTE_COLOR);
 							g.fillRect(NOTE_X,START_Y+NOTE_SIZE/2,NOTE_SIZE,END_Y-START_Y);
 							g.setColor(prevCol);
-							g.fillOval(NOTE_X,END_Y,NOTE_SIZE,NOTE_SIZE);
+							drawNote(g,NOTE_X,END_Y,1,1,n.multiple2);
 						}
-						g.fillOval(NOTE_X,START_Y,NOTE_SIZE,NOTE_SIZE);
+						drawNote(g,NOTE_X,START_Y,1,1,n.multiple);
 					}
 				}
 			} else {
@@ -172,8 +172,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 								if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()>=LLSIG.game.NOTE_SPEED) {
 									if (n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
 										//Use the center to draw the connecting note.
-										g.fillOval((int)(MIDDLE_X-NOTE_SIZE/2),(int)(MIDDLE_Y-NOTE_SIZE/2),
-										(int)(Math.min(0/2+0.5,1)*NOTE_SIZE),(int)(Math.min(0/2+0.5,1)*NOTE_SIZE));
+										drawNote(g,MIDDLE_X-NOTE_SIZE/2,MIDDLE_Y-NOTE_SIZE/2,Math.min(0/2+0.5,1),Math.min(0/2+0.5,1),false);
 									}
 								} else {
 									Color prevCol = g.getColor();
@@ -183,17 +182,14 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 									Point CORNER2 = new Point((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2));
 									g.fillPolygon(new int[]{CORNER1.x,CORNER1.x+END_NOTE_SIZE,CORNER2.x+START_NOTE_SIZE,CORNER2.x}, new int[]{CORNER1.y+END_NOTE_SIZE/2,CORNER1.y+END_NOTE_SIZE/2,CORNER2.y+START_NOTE_SIZE/2,CORNER2.y+START_NOTE_SIZE/2}, 4);
 									g.setColor(prevCol);
-									g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2),
-											END_NOTE_SIZE,END_NOTE_SIZE);
+									drawNote(g,MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2,MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_END_RATIO*NOTE_DISTANCE)-END_NOTE_SIZE/2,Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1),Math.min(Math.max(PLAYTIME_END_RATIO/2+0.5,0.5),1),n.multiple2);
 								}
 							}
 							if (n.active&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
-								g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2),
-										(int)(Math.min(PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE),(int)(Math.min(PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE));
+								drawNote(g,MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2,MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(PLAYTIME_RATIO*NOTE_DISTANCE)-START_NOTE_SIZE/2,Math.min(PLAYTIME_RATIO/2+0.5,1),Math.min(PLAYTIME_RATIO/2+0.5,1),n.multiple);
 							}
 							if (!n.active&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()<LLSIG.game.NOTE_SPEED) {
-								g.fillOval((int)(MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),(int)(MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2),
-										(int)(Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE),(int)(Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1)*NOTE_SIZE));
+								drawNote(g,MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2,MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2,Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1),Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1),false);
 							}
 						}
 						noteCounter++;
@@ -201,6 +197,10 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 				}
 			}
 		}
+	}
+
+	public void drawNote(Graphics g,double x,double y,double xsize,double ysize,boolean multiple) {
+		g.fillOval((int)x,(int)y,(int)(xsize*NOTE_SIZE),(int)(ysize*NOTE_SIZE));
 	}
 	@Override
 	public void spectrumDataUpdate(double timestamp, double duration, float[] magnitudes, float[] phases) {
