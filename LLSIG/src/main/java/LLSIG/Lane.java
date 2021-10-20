@@ -117,14 +117,15 @@ public class Lane{
 		}
 		addQueue.clear();
 	}
-	public void markMissedNotes() {
+	public void markMissedNotes(int laneNumber) {
 		if (LLSIG.game.PLAYING) {
-			int noteCounter=0;
+			int noteCounter=LLSIG.noteCounter[laneNumber];
 			while (noteExists(noteCounter)) {
 				Note note = getNote(noteCounter);
 				double diff = note.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 				double diff2 = note.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition();
 				if (note.getNoteType()==NoteType.HOLD&&note.active2&&!note.active&&diff2<-LLSIG.BAD_TIMING_WINDOW) {
+					LLSIG.noteCounter[laneNumber]++;
 					note.active2=false;
 					lastRating = TimingRating.MISS;
 					lastNote = LLSIG.game.musicPlayer.getPlayPosition();
@@ -133,6 +134,7 @@ public class Lane{
 					LLSIG.LAST_MISS=LLSIG.game.musicPlayer.getPlayPosition();
 				}
 				if (note.active&&diff<-LLSIG.BAD_TIMING_WINDOW) {
+					LLSIG.noteCounter[laneNumber]++;
 					note.active=false;
 					if (note.getNoteType()==NoteType.HOLD) {
 						note.active2=false; //Count as a double miss, since we missed the first part.

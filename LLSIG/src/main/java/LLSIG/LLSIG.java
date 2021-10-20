@@ -40,6 +40,9 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	public static double beatDelay = ((1/((double)bpm/60))*1000);
 	public static boolean lastHold = false; //A toggle. Decides primary/secondary color marking.
 	
+
+	public static int[] noteCounter = new int[9];
+	
 	public static List<Long> beats = new ArrayList<Long>();
 	
 	int NOTE_SPEED = 750; //The note speed determines how early you see the note. So lowering this number increases the speed.
@@ -175,7 +178,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
     				if (PLAYING) {
 						for (int i=0;i<9;i++) {
 							Lane l =lanes.get(i);
-							l.markMissedNotes();
+							l.markMissedNotes(i);
 							/*if (!EDITMODE) {
 								l.clearOutInactiveNotes();
 							}*/
@@ -476,13 +479,19 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 			} else
 			if (PLAYING&&!EDITMODE&&!EDITOR) {
 				Lane l = lanes.get(lane);
-				if (l.noteExists()) {
-					Note n = l.getNote();
-					double diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
-					if (n.active&&diff<=BAD_TIMING_WINDOW) {
-						judgeNote(l, diff, false);
-						n.active=false;
+				if (!l.keyPressed) {
+					if (l.noteExists()) {
+						Note n = l.getNote();
+						double diff = n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition();
+						if (n.active&&diff<=BAD_TIMING_WINDOW) {
+							judgeNote(l, diff, false);
+							n.active=false;
+							if (n.getNoteType()!=NoteType.HOLD) {
+								noteCounter[lane]++;
+							}
+						}
 					}
+					l.keyPressed=true;
 				}
 			}
 			keyState[lane]=true;
@@ -619,8 +628,10 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 					if (n.getNoteType()==NoteType.HOLD&&n.active2&&!n.active) {
 						judgeNote(l, diff2, true);
 						n.active2=false;
+						LLSIG.noteCounter[lane]++;
 					}
 				}
+				l.keyPressed=false;
 			}
 			keyState[lane]=false;
 		}

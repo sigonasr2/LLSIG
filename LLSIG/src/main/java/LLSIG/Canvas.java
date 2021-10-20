@@ -159,7 +159,8 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 						}
 					}
 					g.setColor(NOTE_COLOR);
-					int noteCounter = 0;
+					int noteCounter = LLSIG.noteCounter[i];
+					//System.out.println("Starting from "+noteCounter);
 					while (lane.noteExists(noteCounter)) {
 						Note n = lane.getNote(noteCounter);
 						if (n.active||n.active2) {
@@ -189,10 +190,8 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 								drawNote(g,MIDDLE_X-Math.cos(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2,MIDDLE_Y+Math.sin(Math.toRadians(22.5*i))*(CLAMPED_PLAYTIME_RATIO*NOTE_DISTANCE)-NOTE_SIZE/2,Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1),Math.min(CLAMPED_PLAYTIME_RATIO/2+0.5,1),false);
 							}
 						}
-						if ((n.active2)&&n.getEndFrame()-LLSIG.game.musicPlayer.getPlayPosition()>LLSIG.game.NOTE_SPEED) {
-							break;
-						} else
-						if ((n.active)&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()>LLSIG.game.NOTE_SPEED) {
+						if ((n.active||n.active2)&&n.getStartFrame()-LLSIG.game.musicPlayer.getPlayPosition()>LLSIG.game.NOTE_SPEED) {
+							//System.out.println("Lane "+i+": Stopping at note "+noteCounter);
 							break;
 						}
 						noteCounter++;
@@ -210,7 +209,7 @@ public class Canvas extends JPanel implements AudioSpectrumListener{
 		if (multiple) {
 			Color drawCol = g.getColor();
 			g.setColor(multiple_col?Color.RED:Color.BLUE);
-			g.fillRoundRect((int)x,(int)(y+(ysize*NOTE_SIZE)/2),(int)(xsize*NOTE_SIZE), 8, 4, 24);
+			g.fillRect((int)x,(int)(y+(ysize*NOTE_SIZE)/2),(int)(xsize*NOTE_SIZE), 8);
 			g.setColor(drawCol);
 		}
 	}
