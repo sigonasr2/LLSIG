@@ -53,11 +53,11 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 	
 	final static Dimension WINDOW_SIZE = new Dimension(1280,1050);
 	
-	public boolean EDITMODE = false;
+	public boolean EDITMODE =  false;
 	public boolean METRONOME = false;
 	public boolean BPM_MEASURE = false;
 	public boolean PLAYING = true; //Whether or not a song is loaded and playing.
-	public boolean EDITOR = false; //Whether or not we are in beatmap editing mode.
+	public boolean EDITOR = true; //Whether or not we are in beatmap editing mode.
 	public boolean HOLDING_CTRL_KEY = false;
 
 	public static double EDITOR_CURSOR_BEAT = 0;
@@ -458,7 +458,7 @@ public class LLSIG implements KeyListener,MouseWheelListener{
 			if (PLAYING&&EDITMODE) {
 				if (!LLSIG.game.lanes.get(lane).keyPressed) {
 					Note previousN = LLSIG.game.lanes.get(lane).lastNoteAdded;
-					double snapBeat = Math.round(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
+					double snapBeat = Math.floor(((musicPlayer.getPlayPosition()-offset)/beatDelay)*NOTE_RECORD_BEAT_SNAP_MULTIPLE)/(double)NOTE_RECORD_BEAT_SNAP_MULTIPLE;
 					boolean allowed=true;
 					if (previousN!=null) {
 						if (previousN.getBeatSnap()==snapBeat) {
